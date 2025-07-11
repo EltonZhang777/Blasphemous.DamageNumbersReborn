@@ -1,2 +1,2 @@
-# Blasphemous.DamageNumbersReborn
-Remastered mod of Blasphemous that displays damage numbers
+# Damage Numbers Reborn
+A remaster of [@KZekai](https://next.nexusmods.com/profile/KZekai/mods, "Kein's NexusMods home page")'s _Floating Damage Numbers_ mod for Blasphemous 1.
