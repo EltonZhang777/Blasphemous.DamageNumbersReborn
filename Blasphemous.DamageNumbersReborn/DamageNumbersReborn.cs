@@ -1,14 +1,9 @@
 ﻿using Blasphemous.ModdingAPI;
 
-namespace Blasphemous.DamageNumbersReborn
-{
-    public class DamageNumbersReborn : BlasMod
-    {
-        public DamageNumbersReborn() : base(ModInfo.MOD_ID, ModInfo.MOD_NAME, ModInfo.MOD_AUTHOR, ModInfo.MOD_VERSION) { }
+namespace Blasphemous.DamageNumbersReborn;
 
-        protected override void OnInitialize()
-        {
-            LogError($"{ModInfo.MOD_NAME} has been initialized");
-        }
-    }
+public class DamageNumbersReborn : BlasMod
+{
+    public DamageNumbersReborn() : base(ModInfo.MOD_ID, ModInfo.MOD_NAME, ModInfo.MOD_AUTHOR, ModInfo.MOD_VERSION) { }
+
 }

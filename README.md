@@ -1,2 +1,2 @@
 # Damage Numbers Reborn
-A remaster of [@KZekai](https://next.nexusmods.com/profile/KZekai/mods, "Kein's NexusMods home page")'s _Floating Damage Numbers_ mod for Blasphemous 1.
+A remastered and augmented version of [@KZekai](https://next.nexusmods.com/profile/KZekai/mods, "Kein's NexusMods home page")'s _Floating Damage Numbers_ mod for Blasphemous 1, now fully compatible with the [ModdingAPI](https://github.com/brandenEK/Blasphemous.ModdingAPI).
