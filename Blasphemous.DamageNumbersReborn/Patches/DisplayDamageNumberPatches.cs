@@ -1,6 +1,7 @@
 ﻿using Blasphemous.DamageNumbersReborn.Components;
 using Gameplay.GameControllers.Enemies.Framework.Damage;
 using Gameplay.GameControllers.Entities;
+using Gameplay.GameControllers.Penitent.Damage;
 using Gameplay.GameControllers.Penitent.InputSystem;
 using HarmonyLib;
 
@@ -12,7 +13,10 @@ class PlatformCharacterInput_Awake_AttachDamageNumbersManager_Patch
     [HarmonyPrefix]
     public static void Prefix(PlatformCharacterInput __instance)
     {
-        __instance.gameObject.AddComponent<DamageNumbersManager>();
+        if (!Main.DamageNumbersReborn.config.enabled)
+            return;
+
+        __instance.gameObject?.AddComponent<DamageNumbersManager>();
     }
 }
 
@@ -22,9 +26,24 @@ class EnemyDamageArea_TakeDamageAmount_SpawnDamageNumber_Patch
     [HarmonyPrefix]
     public static void Prefix(Hit hit, EnemyDamageArea __instance)
     {
-        if (DamageNumbersManager.instance != null)
+        if (Main.DamageNumbersReborn.config.enabled
+            && Main.DamageNumbersReborn.config.showEnemyDamageNumbers)
         {
-            DamageNumbersManager.instance.AddHit(hit.DamageAmount, __instance.OwnerEntity);
+            DamageNumbersManager.instance?.AddHit(hit, __instance.OwnerEntity);
+        }
+    }
+}
+
+[HarmonyPatch(typeof(PenitentDamageArea), "RaiseDamageEvent")]
+class PenitentDamageArea_RaiseDamageEvent_SpawnDamageNumber_Patch
+{
+    [HarmonyPrefix]
+    public static void Prefix(Hit hit, PenitentDamageArea __instance)
+    {
+        if (Main.DamageNumbersReborn.config.enabled
+            && Main.DamageNumbersReborn.config.showPenitentDamageNumbers)
+        {
+            DamageNumbersManager.instance?.AddHit(hit, __instance.OwnerEntity);
         }
     }
 }

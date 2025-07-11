@@ -26,15 +26,16 @@ internal class DamageNumbersManager : MonoBehaviour
         this.Hits = new List<DamageNumberObject>(40);
     }
 
-    public void AddHit(float damage, Entity entity)
+    public void AddHit(Hit hit, Entity entity)
     {
-        damage = Mathf.Max(damage - entity.Stats.Defense.Final, 0f);
+        float postMitigationDamage = Mathf.Max(entity.GetReducedDamage(hit) - entity.Stats.Defense.Final, 0f);
         Vector3 position = entity.transform.position;
         float num = UnityEngine.Random.Range(-1f, 1f);
-        DamageNumberObject item = new DamageNumberObject
+        DamageNumberObject item = new()
         {
-            damage = damage.ToString(),
-            origPos = new Vector2(position.x + num, position.y)
+            hit = hit,
+            postMitigationDamage = postMitigationDamage,
+            originalPosition = new Vector2(position.x + num, position.y)
         };
         this.Hits.Add(item);
     }
@@ -64,7 +65,7 @@ internal class DamageNumbersManager : MonoBehaviour
             {
                 // calculate screen position of the damage number
                 DamageNumberObject.screenY += 0.2f;
-                Vector3 screenPosition = this.GameCamera.WorldToScreenPoint(new Vector3(DamageNumberObject.origPos.x, DamageNumberObject.origPos.y, 0f));
+                Vector3 screenPosition = this.GameCamera.WorldToScreenPoint(new Vector3(DamageNumberObject.originalPosition.x, DamageNumberObject.originalPosition.y, 0f));
                 float xPosition = screenPosition.x * this.ScreenWidthScale;
                 float yPosition = (float)Screen.height - screenPosition.y * this.ScreenHeightScale - DamageNumberObject.screenY;
                 yPosition += this.labelOffset;
@@ -75,11 +76,11 @@ internal class DamageNumbersManager : MonoBehaviour
 
                 // display damage number
                 GUI.color = new Color(0f, 0f, 0f, currentAlpha);
-                GUI.Label(new Rect(xPosition + 1f, yPosition + 1f, rectSize, rectSize), DamageNumberObject.damage);
+                GUI.Label(new Rect(xPosition + 1f, yPosition + 1f, rectSize, rectSize), DamageNumberObject.postMitigationDamage.ToString());
 
                 // display a black shadow of the damage number to its bottom right
                 GUI.color = new Color(1f, 1f, 1f, currentAlpha);
-                GUI.Label(new Rect(xPosition, yPosition, rectSize, rectSize), DamageNumberObject.damage);
+                GUI.Label(new Rect(xPosition, yPosition, rectSize, rectSize), DamageNumberObject.postMitigationDamage.ToString());
 
                 DamageNumberObject.timePassed += Time.deltaTime;
             }

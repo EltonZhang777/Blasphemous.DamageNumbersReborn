@@ -6,7 +6,7 @@ namespace Blasphemous.DamageNumbersReborn;
 [BepInDependency("Blasphemous.ModdingAPI", "0.1.0")]
 public class Main : BaseUnityPlugin
 {
-    public static DamageNumbersReborn DamageNumbersReborn { get; private set; }
+    internal static DamageNumbersReborn DamageNumbersReborn { get; private set; }
 
     private void Start()
     {
