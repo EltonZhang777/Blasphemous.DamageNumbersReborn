@@ -1,5 +1,4 @@
 ﻿using Blasphemous.DamageNumbersReborn.Configs;
-using Blasphemous.ModdingAPI;
 using Framework.Managers;
 using Gameplay.GameControllers.Entities;
 using Gameplay.GameControllers.Penitent;
@@ -83,13 +82,16 @@ internal class DamageNumbersManager : MonoBehaviour
 
                 if (currentDamageNumber.timePassed >= currentConfig.animation.totalDurationSeconds)
                 {
+                    // If the damage number has exceeded its duration, kill it
                     GameObject.Destroy(damageNumbers[i].gameObj);
                     damageNumbers.RemoveAt(i);
                 }
                 else
                 {
                     // calculate screen position of the damage number
-                    currentDamageNumber.screenY += 0.2f;
+                    float currentYSpeed = 12f;
+                    float currentYDisplacement = currentYSpeed * Time.deltaTime;
+                    currentDamageNumber.screenY += currentYDisplacement;
                     Vector3 screenPosition = Camera.WorldToScreenPoint(currentDamageNumber.originalPosition + _labelWorldPositionOffset);
                     screenPosition = new Vector2()
                     {
@@ -97,9 +99,14 @@ internal class DamageNumbersManager : MonoBehaviour
                         y = (screenPosition.y + currentDamageNumber.screenY)
                     };
 
-                    // calculate current alpha with ease-in quintic curve
+                    // calculate current alpha
                     double currentCurveValue = 1.0 - (double)(1f / (currentConfig.animation.totalDurationSeconds / (currentConfig.animation.totalDurationSeconds - currentDamageNumber.timePassed)));
                     float currentAlpha = EaseInQuint(1f, 0f, (float)currentCurveValue);
+                    // if the game is paused, alpha is set to 0.
+                    if (UIController.instance.Paused)
+                    {
+                        currentAlpha = 0f;
+                    }
 
                     // display damage number
                     // Instatiate the prefab if it doesn't exist
@@ -157,7 +164,7 @@ internal class DamageNumbersManager : MonoBehaviour
         result.transform.SetParent(UIController.instance.transform);
         result.transform.localPosition = Vector3.zero;
         result.layer = LayerMask.NameToLayer("UI");
-        result.transform.SetSiblingIndex(3);
+        result.transform.SetSiblingIndex(0);
 
         // Initialize text component
         Text text = result.AddComponent<Text>();
