@@ -13,9 +13,6 @@ class PlatformCharacterInput_Awake_AttachDamageNumbersManager_Patch
     [HarmonyPrefix]
     public static void Prefix(PlatformCharacterInput __instance)
     {
-        if (!Main.DamageNumbersReborn.config.enabled)
-            return;
-
         __instance.gameObject?.AddComponent<DamageNumbersManager>();
     }
 }
@@ -26,8 +23,7 @@ class EnemyDamageArea_TakeDamageAmount_SpawnDamageNumber_Patch
     [HarmonyPrefix]
     public static void Prefix(Hit hit, EnemyDamageArea __instance)
     {
-        if (Main.DamageNumbersReborn.config.enabled
-            && Main.DamageNumbersReborn.config.showEnemyDamageNumbers)
+        if (Main.DamageNumbersReborn.config.enemyDamageNumbers.enabled)
         {
             DamageNumbersManager.instance?.AddHit(hit, __instance.OwnerEntity);
         }
@@ -40,8 +36,7 @@ class PenitentDamageArea_RaiseDamageEvent_SpawnDamageNumber_Patch
     [HarmonyPrefix]
     public static void Prefix(Hit hit, PenitentDamageArea __instance)
     {
-        if (Main.DamageNumbersReborn.config.enabled
-            && Main.DamageNumbersReborn.config.showPenitentDamageNumbers)
+        if (Main.DamageNumbersReborn.config.penitentDamageNumbers.enabled)
         {
             DamageNumbersManager.instance?.AddHit(hit, __instance.OwnerEntity);
         }
