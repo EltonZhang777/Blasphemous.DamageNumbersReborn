@@ -123,7 +123,7 @@ internal class DamageNumbersManager : MonoBehaviour
                     Text text = currentDamageNumber.gameObj.GetComponent<Text>();
                     text.text = Main.DamageNumbersReborn.config.NumberStringFormatted(currentDamageNumber.postMitigationDamage);
                     text.fontSize = fontSize;
-                    Color textColor = new(1f, 1f, 1f);
+                    Color textColor = Main.DamageNumbersReborn.config.DamageElementToColor[currentDamageNumber.hit.DamageElement];
                     textColor.a = currentAlpha;
                     text.color = textColor;
 
@@ -132,13 +132,6 @@ internal class DamageNumbersManager : MonoBehaviour
                     Color outlineColor = currentConfig.OutlineColor;
                     outlineColor.a = currentAlpha;
                     outline.effectColor = outlineColor;
-                    ModLog.Warn($"Current damage number: " +
-                        $"\n  text: {text.text} " +
-                        $"\n  timePassed: {currentDamageNumber.timePassed} " +
-                        $"\n   world Position: {Camera.ScreenToWorldPoint(rectTransform.localPosition)} " +
-                        $"\n  original position: {currentDamageNumber.originalPosition} " +
-                        $"\n rect position: {rectTransform.anchoredPosition} " +
-                        $"\n  screen position: {screenPosition}");
 
                     // Increment time
                     currentDamageNumber.timePassed += Time.deltaTime;
