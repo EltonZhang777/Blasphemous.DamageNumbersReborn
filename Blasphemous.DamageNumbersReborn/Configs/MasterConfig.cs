@@ -1,4 +1,6 @@
-﻿using UnityEngine;
+﻿using Blasphemous.DamageNumbersReborn.Components;
+using System.Collections.Generic;
+using UnityEngine;
 
 namespace Blasphemous.DamageNumbersReborn.Configs;
 
@@ -15,6 +17,14 @@ public class MasterConfig
     };
 
     public int precisionDigits = 3;
+
+    internal Dictionary<DamageNumberObject.EntityType, DamageNumberConfig> EntityTypeToConfig => new()
+    {
+        { DamageNumberObject.EntityType.Penitent, penitentDamageNumbers },
+        { DamageNumberObject.EntityType.Enemy, enemyDamageNumbers },
+        { DamageNumberObject.EntityType.Boss, enemyDamageNumbers },
+        { DamageNumberObject.EntityType.Other, enemyDamageNumbers }
+    };
 
     internal static string NumberStringFormatted(float number, int precision)
     {

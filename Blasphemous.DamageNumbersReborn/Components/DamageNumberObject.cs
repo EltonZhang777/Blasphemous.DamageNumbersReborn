@@ -10,4 +10,16 @@ internal class DamageNumberObject
     public float timePassed;
     public Hit hit;
     public float postMitigationDamage;
+    public Entity damagedEntity;
+    public EntityType damagedEntityType;
+
+    internal GameObject gameObj;
+
+    public enum EntityType
+    {
+        Penitent,
+        Enemy,
+        Boss,
+        Other
+    }
 }

@@ -8,6 +8,7 @@ namespace Blasphemous.DamageNumbersReborn.Configs;
 public class DamageNumberConfig
 {
     public bool enabled = true;
+    public int fontSize = 16;
     public string outlineColor = "#FFFFFF";
     public DamageNumberAnimationConfig animation = new();
 
