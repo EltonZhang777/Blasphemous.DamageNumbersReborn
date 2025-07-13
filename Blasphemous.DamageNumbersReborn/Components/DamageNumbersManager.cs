@@ -4,8 +4,11 @@ using Gameplay.GameControllers.Entities;
 using Gameplay.GameControllers.Penitent;
 using Gameplay.UI;
 using System.Collections.Generic;
+using System.Reflection;
 using UnityEngine;
 using UnityEngine.UI;
+using System.Linq;
+using Blasphemous.ModdingAPI;
 
 namespace Blasphemous.DamageNumbersReborn.Components;
 
@@ -14,7 +17,8 @@ internal class DamageNumbersManager : MonoBehaviour
     internal List<DamageNumberObject> damageNumbers;
     private Vector2 _labelWorldPositionOffset = new(0f, 1f);
     private GameObject _prefab;
-    private static readonly string _fontName = "MajesticExtended_Pixel_Scroll";
+    private static Dictionary<string, Font> _fonts = new();
+    private static readonly string _defaultFontName = "MajesticExtended_Pixel_Scroll";
 
     private GameObject Prefab => _prefab ??= CreatePrefab();
     private Camera Camera => Core.Screen.GameCamera;
@@ -29,6 +33,17 @@ internal class DamageNumbersManager : MonoBehaviour
     {
         DamageNumbersManager.instance = this;
         damageNumbers = new List<DamageNumberObject>(40);
+
+        // Initialize font storage
+        List<string> allFontNamesInConfig = Main.DamageNumbersReborn.config
+            .GetType().GetFields((BindingFlags.Public | BindingFlags.Instance))
+            .Where(x => x.FieldType == typeof(DamageNumberConfig))
+            .Select(x => ((DamageNumberConfig)x.GetValue(Main.DamageNumbersReborn.config)).fontName).ToList();
+        allFontNamesInConfig.Add(_defaultFontName);
+        foreach (string fontName in allFontNamesInConfig.Distinct())
+        {
+            Font font = GetFont(fontName);
+        }
     }
 
     public void AddDamageNumber(Hit hit, Entity entity)
@@ -100,8 +115,8 @@ internal class DamageNumbersManager : MonoBehaviour
                     };
 
                     // calculate current alpha
-                    double currentCurveValue = 1.0 - (double)(1f / (currentConfig.animation.totalDurationSeconds / (currentConfig.animation.totalDurationSeconds - currentDamageNumber.timePassed)));
-                    float currentAlpha = EaseInQuint(1f, 0f, (float)currentCurveValue);
+                    double currentElapsedTimeRatio = 1.0 - (double)(1f / (currentConfig.animation.totalDurationSeconds / (currentConfig.animation.totalDurationSeconds - currentDamageNumber.timePassed)));
+                    float currentAlpha = EaseInQuint(1f, 0f, (float)currentElapsedTimeRatio);
                     // if the game is paused, alpha is set to 0.
                     if (UIController.instance.Paused)
                     {
@@ -114,8 +129,10 @@ internal class DamageNumbersManager : MonoBehaviour
                     currentDamageNumber.gameObj.SetActive(true);
 
                     // initialize font
+                    //int fontSize = (int)(currentConfig.fontSize * (GuiScale / 3f));
                     int fontSize = (int)(currentConfig.fontSize * (GuiScale / 3f));
-                    Vector2 rectSize = new(fontSize * 5f, fontSize * 5f);
+                    Vector2 rectSize = new Vector2(fontSize * 10f, fontSize * 2f) ;
+                    ModLog.Warn($"fontSize: {fontSize} \n  GuiScale: {GuiScale} \n  rectSize: {rectSize}");
 
                     // Set position
                     RectTransform rectTransform = currentDamageNumber.gameObj.GetComponent<RectTransform>();
@@ -130,6 +147,9 @@ internal class DamageNumbersManager : MonoBehaviour
                     Text text = currentDamageNumber.gameObj.GetComponent<Text>();
                     text.text = Main.DamageNumbersReborn.config.NumberStringFormatted(currentDamageNumber.postMitigationDamage);
                     text.fontSize = fontSize;
+                    Font font = GetFont(currentConfig.fontName);
+                    ModLog.Warn($"font.fontSize : {font.fontSize}");
+                    text.font = font;
                     Color textColor = Main.DamageNumbersReborn.config.DamageElementToColor[currentDamageNumber.hit.DamageElement];
                     textColor.a = currentAlpha;
                     text.color = textColor;
@@ -168,7 +188,7 @@ internal class DamageNumbersManager : MonoBehaviour
 
         // Initialize text component
         Text text = result.AddComponent<Text>();
-        text.font = I2LocManager.FindAsset(_fontName) as Font;
+        text.font = GetFont(_defaultFontName);
         text.fontSize = 16;
         text.alignment = TextAnchor.MiddleCenter;
 
@@ -179,6 +199,33 @@ internal class DamageNumbersManager : MonoBehaviour
         Color transparent = new(0, 0, 0, 0);
         text.color = transparent;
         outline.effectColor = transparent;
+
+        return result;
+    }
+
+    /// <summary>
+    /// Gets the font by name, or the default font if not found. 
+    /// First queries through the internal storage, then query I2LocManager if not found. 
+    /// If found, store it in the internal storage if hasn't already.
+    /// </summary>
+    private Font GetFont(string fontName)
+    {
+        _fonts.TryGetValue(fontName, out Font result);
+        if (result == null)  // isn't in the internal storage
+        {
+            // find in I2Loc storage
+            result = I2LocManager.FindAsset(fontName) as Font;
+            if (result == null)  // isn't in the I2Loc storage either
+            {
+                // fall back to default font
+                result = I2LocManager.FindAsset(_defaultFontName) as Font;
+            }
+            else
+            {
+                // store it in the internal storage
+                _fonts.Add(fontName, result);
+            }
+        }
 
         return result;
     }

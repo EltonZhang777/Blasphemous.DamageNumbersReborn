@@ -8,6 +8,7 @@ namespace Blasphemous.DamageNumbersReborn.Configs;
 public class DamageNumberConfig
 {
     public bool enabled = true;
+    public string fontName = "MajesticExtended_Pixel_Scroll";
     public int fontSize = 16;
     public string outlineColor = "#FFFFFF";
     public DamageNumberAnimationConfig animation = new();
