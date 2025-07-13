@@ -21,6 +21,7 @@ internal class DamageNumbersManager : MonoBehaviour
     private static Dictionary<string, Font> _fonts = new();
     private int _cyclicalMovementPeriod = 3;
     private int _cyclicalCounter = 1;
+    private Vector2 _cyclicalXRange = new Vector2(-0.8f, 0.8f);
     private static readonly string _defaultFontName = "MajesticExtended_Pixel_Scroll";
 
     private GameObject Prefab => _prefab ??= CreatePrefab();
@@ -50,6 +51,23 @@ internal class DamageNumbersManager : MonoBehaviour
         }
     }
 
+    private Vector2 CyclicalXRange
+    {
+        get => _cyclicalXRange;
+        set
+        {
+            // Ensure the range is valid
+            if (value.x > value.y)
+            {
+                _cyclicalXRange = new Vector2(value.y, value.x);
+            }
+            else
+            {
+                _cyclicalXRange = value;
+            }
+        }
+    }
+
     public static DamageNumbersManager instance { get; private set; }
 
     private void Awake()
@@ -71,10 +89,16 @@ internal class DamageNumbersManager : MonoBehaviour
 
     public void AddDamageNumber(Hit hit, Entity entity)
     {
+        // set initial position
         float postMitigationDamage = Mathf.Max(entity.GetReducedDamage(hit) - entity.Stats.Defense.Final, 0f);
         Vector3 entityPosition = entity.GetComponentInChildren<DamageArea>().TopCenter;
+
+        // apply random x offset
         float randomXOffset = UnityEngine.Random.Range(-0.2f, 0.2f);
-        float cyclicalXOffset = (CyclicalCounter - 1) * 0.7f;
+
+        // apply cyclical x offset
+        float cyclicalRatio = (float)CyclicalCounter / ((float)_cyclicalMovementPeriod - 1f);
+        float cyclicalXOffset = Mathf.Lerp(CyclicalXRange.x, CyclicalXRange.y, cyclicalRatio);
 
         // Determine the damaged entity type for the damage number
         DamageNumberObject.EntityType entityType;
