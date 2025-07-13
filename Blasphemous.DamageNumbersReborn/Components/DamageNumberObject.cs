@@ -5,8 +5,8 @@ namespace Blasphemous.DamageNumbersReborn.Components;
 
 internal class DamageNumberObject
 {
-    public Vector2 originalPosition;
-    public float screenY;
+    public Vector2 startingPosition;
+    public Vector2 finalPosition;
     public float timePassed;
     public Hit hit;
     public float postMitigationDamage;
@@ -14,6 +14,7 @@ internal class DamageNumberObject
     public EntityType damagedEntityType;
 
     internal GameObject gameObj;
+    internal Vector2 currentPosition;
 
     public enum EntityType
     {

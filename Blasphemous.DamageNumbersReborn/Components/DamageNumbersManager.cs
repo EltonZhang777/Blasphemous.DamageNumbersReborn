@@ -1,5 +1,4 @@
 ﻿using Blasphemous.DamageNumbersReborn.Configs;
-using Blasphemous.ModdingAPI;
 using Framework.Managers;
 using Gameplay.GameControllers.Entities;
 using Gameplay.GameControllers.Penitent;
@@ -89,17 +88,6 @@ internal class DamageNumbersManager : MonoBehaviour
 
     public void AddDamageNumber(Hit hit, Entity entity)
     {
-        // set initial position
-        float postMitigationDamage = Mathf.Max(entity.GetReducedDamage(hit) - entity.Stats.Defense.Final, 0f);
-        Vector3 entityPosition = entity.GetComponentInChildren<DamageArea>().TopCenter;
-
-        // apply random x offset
-        float randomXOffset = UnityEngine.Random.Range(-0.2f, 0.2f);
-
-        // apply cyclical x offset
-        float cyclicalRatio = (float)CyclicalCounter / ((float)_cyclicalMovementPeriod - 1f);
-        float cyclicalXOffset = Mathf.Lerp(CyclicalXRange.x, CyclicalXRange.y, cyclicalRatio);
-
         // Determine the damaged entity type for the damage number
         DamageNumberObject.EntityType entityType;
         if (entity is Penitent)
@@ -122,17 +110,37 @@ internal class DamageNumbersManager : MonoBehaviour
             entityType = DamageNumberObject.EntityType.Other;
         }
 
-        DamageNumberObject item = new()
+        // Determine config type based on entity type
+        DamageNumberConfig currentConfig = Main.DamageNumbersReborn.config.EntityTypeToConfig[entityType];
+
+        // set starting position
+        Vector3 entityPosition = entity.GetComponentInChildren<DamageArea>().TopCenter;
+        // apply random x offset
+        float randomXOffset = UnityEngine.Random.Range(-0.2f, 0.2f);
+        // apply cyclical x offset
+        float cyclicalRatio = (float)CyclicalCounter / ((float)_cyclicalMovementPeriod - 1f);
+        float cyclicalXOffset = Mathf.Lerp(CyclicalXRange.x, CyclicalXRange.y, cyclicalRatio);
+        CyclicalCounter++;
+        // finalize starting and final position
+        Vector2 startingPosition = new Vector2(entityPosition.x + randomXOffset + cyclicalXOffset, entityPosition.y) + _labelWorldPositionOffset;
+        Vector2 finalPosition = startingPosition + new Vector2(
+            currentConfig.animation.totalXMovement,
+            currentConfig.animation.totalYMovement);
+
+        // calculate post-mitigation damage
+        float postMitigationDamage = Mathf.Max(entity.GetReducedDamage(hit) - entity.Stats.Defense.Final, 0f);
+
+        DamageNumberObject result = new()
         {
             hit = hit,
             postMitigationDamage = postMitigationDamage,
-            originalPosition = new Vector2(entityPosition.x + randomXOffset + cyclicalXOffset, entityPosition.y),
+            startingPosition = startingPosition,
+            finalPosition = finalPosition,
             damagedEntity = entity,
             damagedEntityType = entityType
         };
-        damageNumbers.Add(item);
-
-        CyclicalCounter++;
+        result.currentPosition = result.startingPosition;
+        damageNumbers.Add(result);
     }
 
     private void Update()
@@ -153,20 +161,14 @@ internal class DamageNumbersManager : MonoBehaviour
                 }
                 else
                 {
-                    // calculate screen position of the damage number
-                    float currentYSpeed = 12f;
-                    float currentYDisplacement = currentYSpeed * Time.deltaTime;
-                    currentDamageNumber.screenY += currentYDisplacement;
-                    Vector3 screenPosition = Camera.WorldToScreenPoint(currentDamageNumber.originalPosition + _labelWorldPositionOffset);
-                    screenPosition = new Vector2()
-                    {
-                        x = screenPosition.x,
-                        y = (screenPosition.y + currentDamageNumber.screenY)
-                    };
+                    // calculate current screen position of the damage number
+                    // calculate world position movement progress
+                    currentConfig.animation.CalculateCurrentPosition(ref currentDamageNumber.currentPosition, currentDamageNumber.timePassed, currentDamageNumber.startingPosition, currentDamageNumber.finalPosition);
+                    // convert world position to screen position
+                    Vector2 screenPosition = Camera.WorldToScreenPoint(currentDamageNumber.currentPosition);
 
                     // calculate current alpha
-                    double currentElapsedTimeRatio = 1.0 - (double)(1f / (currentConfig.animation.totalDurationSeconds / (currentConfig.animation.totalDurationSeconds - currentDamageNumber.timePassed)));
-                    float currentAlpha = EaseInQuint(1f, 0f, (float)currentElapsedTimeRatio);
+                    float currentAlpha = currentConfig.animation.GetCurrentAlpha(currentDamageNumber.timePassed);
                     // if the game is paused, alpha is set to 0.
                     if (UIController.instance.Paused)
                     {
@@ -179,14 +181,11 @@ internal class DamageNumbersManager : MonoBehaviour
                     currentDamageNumber.gameObj.SetActive(true);
 
                     // initialize font
-                    //int fontSize = (int)(currentConfig.fontSize * (GuiScale / 3f));
                     int fontSize = (int)(currentConfig.fontSize * (GuiScale / 3f));
                     Vector2 rectSize = new Vector2(fontSize * 10f, fontSize * 2f);
-                    ModLog.Warn($"fontSize: {fontSize} \n  GuiScale: {GuiScale} \n  rectSize: {rectSize}");
 
                     // Set position
                     RectTransform rectTransform = currentDamageNumber.gameObj.GetComponent<RectTransform>();
-
                     rectTransform.anchorMin = new(0f, 0f);
                     rectTransform.anchorMax = new(0f, 0f);
                     rectTransform.pivot = new(0.5f, 0.5f);
@@ -198,7 +197,6 @@ internal class DamageNumbersManager : MonoBehaviour
                     text.text = Main.DamageNumbersReborn.config.NumberStringFormatted(currentDamageNumber.postMitigationDamage);
                     text.fontSize = fontSize;
                     Font font = GetFont(currentConfig.fontName);
-                    ModLog.Warn($"font.fontSize : {font.fontSize}");
                     text.font = font;
                     Color textColor = Main.DamageNumbersReborn.config.DamageElementToColor[currentDamageNumber.hit.DamageElement];
                     textColor.a = currentAlpha;

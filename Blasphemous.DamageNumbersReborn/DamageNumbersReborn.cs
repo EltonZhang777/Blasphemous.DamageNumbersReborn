@@ -12,6 +12,10 @@ internal class DamageNumbersReborn : BlasMod
     protected override void OnInitialize()
     {
         config = ConfigHandler.Load<MasterConfig>();
+
+        config.penitentDamageNumbers.animation.Validate();
+        config.enemyDamageNumbers.animation.Validate();
+
         ConfigHandler.Save(config);
     }
 }
