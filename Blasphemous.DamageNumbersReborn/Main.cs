@@ -1,16 +1,17 @@
-﻿using BepInEx;
+﻿global using I2LocManager = I2.Loc.LocalizationManager;
 
-namespace Blasphemous.DamageNumbersReborn
+using BepInEx;
+
+namespace Blasphemous.DamageNumbersReborn;
+
+[BepInPlugin(ModInfo.MOD_ID, ModInfo.MOD_NAME, ModInfo.MOD_VERSION)]
+[BepInDependency("Blasphemous.ModdingAPI", "2.4.1")]
+public class Main : BaseUnityPlugin
 {
-    [BepInPlugin(ModInfo.MOD_ID, ModInfo.MOD_NAME, ModInfo.MOD_VERSION)]
-    [BepInDependency("Blasphemous.ModdingAPI", "0.1.0")]
-    public class Main : BaseUnityPlugin
-    {
-        public static DamageNumbersReborn DamageNumbersReborn { get; private set; }
+    internal static DamageNumbersReborn DamageNumbersReborn { get; private set; }
 
-        private void Start()
-        {
-            DamageNumbersReborn = new DamageNumbersReborn();
-        }
+    private void Start()
+    {
+        DamageNumbersReborn = new DamageNumbersReborn();
     }
 }

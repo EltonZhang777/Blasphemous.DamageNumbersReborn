@@ -1,14 +1,21 @@
-﻿using Blasphemous.ModdingAPI;
+﻿using Blasphemous.DamageNumbersReborn.Configs;
+using Blasphemous.ModdingAPI;
 
-namespace Blasphemous.DamageNumbersReborn
+namespace Blasphemous.DamageNumbersReborn;
+
+internal class DamageNumbersReborn : BlasMod
 {
-    public class DamageNumbersReborn : BlasMod
-    {
-        public DamageNumbersReborn() : base(ModInfo.MOD_ID, ModInfo.MOD_NAME, ModInfo.MOD_AUTHOR, ModInfo.MOD_VERSION) { }
+    internal MasterConfig config;
 
-        protected override void OnInitialize()
-        {
-            LogError($"{ModInfo.MOD_NAME} has been initialized");
-        }
+    public DamageNumbersReborn() : base(ModInfo.MOD_ID, ModInfo.MOD_NAME, ModInfo.MOD_AUTHOR, ModInfo.MOD_VERSION) { }
+
+    protected override void OnInitialize()
+    {
+        config = ConfigHandler.Load<MasterConfig>();
+
+        config.penitentDamageNumbers.animation.Validate();
+        config.enemyDamageNumbers.animation.Validate();
+
+        ConfigHandler.Save(config);
     }
 }

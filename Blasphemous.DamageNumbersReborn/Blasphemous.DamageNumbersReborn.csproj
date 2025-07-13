@@ -9,7 +9,7 @@
     <Authors>NewbieElton</Authors>
     <Company>NewbieElton</Company>
     <Description>Remastered mod of Blasphemous that displays damage numbers</Description>
-    <Version>0.1.0</Version>
+    <Version>1.0.0</Version>
 
     <TargetName>DamageNumbersReborn</TargetName>
     <GeneratePackageOnBuild>True</GeneratePackageOnBuild>
