@@ -1,23 +1,26 @@
 ﻿using Blasphemous.DamageNumbersReborn.Configs;
+using Blasphemous.ModdingAPI;
 using Framework.Managers;
 using Gameplay.GameControllers.Entities;
 using Gameplay.GameControllers.Penitent;
 using Gameplay.UI;
 using System.Collections.Generic;
+using System.Linq;
 using System.Reflection;
 using UnityEngine;
 using UnityEngine.UI;
-using System.Linq;
-using Blasphemous.ModdingAPI;
 
 namespace Blasphemous.DamageNumbersReborn.Components;
 
 internal class DamageNumbersManager : MonoBehaviour
 {
     internal List<DamageNumberObject> damageNumbers;
+
     private Vector2 _labelWorldPositionOffset = new(0f, 1f);
     private GameObject _prefab;
     private static Dictionary<string, Font> _fonts = new();
+    private int _cyclicalMovementPeriod = 3;
+    private int _cyclicalCounter = 1;
     private static readonly string _defaultFontName = "MajesticExtended_Pixel_Scroll";
 
     private GameObject Prefab => _prefab ??= CreatePrefab();
@@ -26,6 +29,26 @@ internal class DamageNumbersManager : MonoBehaviour
     private float ScreenHeightScale => (float)Screen.height / 360f;
     private float GuiScale => (ScreenHeightScale > ScreenWidthScale) ? ScreenWidthScale : ScreenHeightScale;
 
+    /// <summary>
+    /// Cyclical counter for cyclical positioning of new damage numbers. 
+    /// Counter starts at `0` and ends at `<see cref="_cyclicalMovementPeriod"/> - 1`.
+    /// </summary>
+    private int CyclicalCounter
+    {
+        get => _cyclicalCounter;
+        set
+        {
+            _cyclicalCounter = value;
+            while (_cyclicalCounter >= _cyclicalMovementPeriod)
+            {
+                _cyclicalCounter -= _cyclicalMovementPeriod;
+            }
+            while (_cyclicalCounter < 0)
+            {
+                _cyclicalCounter += _cyclicalMovementPeriod;
+            }
+        }
+    }
 
     public static DamageNumbersManager instance { get; private set; }
 
@@ -50,7 +73,8 @@ internal class DamageNumbersManager : MonoBehaviour
     {
         float postMitigationDamage = Mathf.Max(entity.GetReducedDamage(hit) - entity.Stats.Defense.Final, 0f);
         Vector3 entityPosition = entity.GetComponentInChildren<DamageArea>().TopCenter;
-        float randomXOffset = UnityEngine.Random.Range(-0f, 0f);
+        float randomXOffset = UnityEngine.Random.Range(-0.2f, 0.2f);
+        float cyclicalXOffset = (CyclicalCounter - 1) * 0.7f;
 
         // Determine the damaged entity type for the damage number
         DamageNumberObject.EntityType entityType;
@@ -78,11 +102,13 @@ internal class DamageNumbersManager : MonoBehaviour
         {
             hit = hit,
             postMitigationDamage = postMitigationDamage,
-            originalPosition = new Vector2(entityPosition.x + randomXOffset, entityPosition.y),
+            originalPosition = new Vector2(entityPosition.x + randomXOffset + cyclicalXOffset, entityPosition.y),
             damagedEntity = entity,
             damagedEntityType = entityType
         };
         damageNumbers.Add(item);
+
+        CyclicalCounter++;
     }
 
     private void Update()
@@ -131,7 +157,7 @@ internal class DamageNumbersManager : MonoBehaviour
                     // initialize font
                     //int fontSize = (int)(currentConfig.fontSize * (GuiScale / 3f));
                     int fontSize = (int)(currentConfig.fontSize * (GuiScale / 3f));
-                    Vector2 rectSize = new Vector2(fontSize * 10f, fontSize * 2f) ;
+                    Vector2 rectSize = new Vector2(fontSize * 10f, fontSize * 2f);
                     ModLog.Warn($"fontSize: {fontSize} \n  GuiScale: {GuiScale} \n  rectSize: {rectSize}");
 
                     // Set position
