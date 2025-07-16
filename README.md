@@ -1,5 +1,5 @@
 # Blasphemous: Damage Numbers Reborn
-A remastered and augmented version of [@KZekai](https://next.nexusmods.com/profile/KZekai/mods, "Kein's NexusMods home page")'s _Floating Damage Numbers_ mod for Blasphemous 1, now fully compatible with the modern [Blasphemous ModdingAPI](https://github.com/brandenEK/Blasphemous.ModdingAPI), while being reborn in performance, aesthetics, and customizability.
+A remastered and augmented version of [@KZekai](https://next.nexusmods.com/profile/KZekai/mods "Kein's NexusMods home page")'s _Floating Damage Numbers_ mod for Blasphemous 1, now fully compatible with the modern [Blasphemous ModdingAPI](https://github.com/brandenEK/Blasphemous.ModdingAPI), while being reborn in performance, aesthetics, and customizability.
 
 ----
 
@@ -11,7 +11,7 @@ A remastered and augmented version of [@KZekai](https://next.nexusmods.com/profi
 
 ## Installation
 
-This mod is available for download through the [Blasphemous Mod Installer](https://github.com/BrandenEK/Blasphemous.Modding.Installer/releases, "release page")
+This mod is available for download through the [Blasphemous Mod Installer](https://github.com/BrandenEK/Blasphemous.Modding.Installer)
 
 Required dependencies (dependencies are auto-downloaded if installed through Mod Installer):
-- [Modding API](https://github.com/BrandenEK/Blasphemous.ModdingAPI/releases, "release page")
+- [Modding API](https://github.com/BrandenEK/Blasphemous.ModdingAPI)
