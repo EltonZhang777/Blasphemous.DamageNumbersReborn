@@ -1,6 +1,8 @@
 ﻿using Blasphemous.DamageNumbersReborn.Configs;
 using Blasphemous.DamageNumbersReborn.Extensions;
 using Blasphemous.Framework.UI;
+using Blasphemous.ModdingAPI.Helpers;
+using Framework.Managers;
 using Gameplay.GameControllers.Entities;
 using System.Collections.Generic;
 using System.Linq;
@@ -10,8 +12,8 @@ using UnityEngine.UI;
 namespace Blasphemous.DamageNumbersReborn.Components;
 internal class EnemyHealthBarNumbersManager : NumbersManager
 {
-    internal List<EnemyHealthBarNumberObject> numbers = new(50);
-    private Vector2 _labelWorldPositionOffset = new(-1.5f, 0.15f);
+    private int _poolSize = 50;
+    internal List<EnemyHealthBarNumberObject> numbers;
 
     public static EnemyHealthBarNumbersManager Instance { get; private set; }
 
@@ -19,6 +21,7 @@ internal class EnemyHealthBarNumbersManager : NumbersManager
     {
         base.Awake();
         Instance = this;
+        numbers = new(_poolSize);
     }
 
     private void Update()
@@ -26,42 +29,55 @@ internal class EnemyHealthBarNumbersManager : NumbersManager
         if (numbers.Count == 0)
             return;
 
+        // if Penitent is dead or the scene isn't a game scene, kill all numbers
+        if ((Core.Logic.Penitent?.Dead ?? true)
+            || !SceneHelper.GameSceneLoaded)
+        {
+            RemoveAllHealthBarNumbers();
+            return;
+        }
+
         // process enemy health bar numbers
         for (int i = numbers.Count - 1; i >= 0; i--)
         {
             EnemyHealthBarNumberObject currentNumber = numbers[i];
-            DamageNumberConfig currentConfig = Main.DamageNumbersReborn.config.enemyHealthBarNumbers;
+            EnemyHealthBarNumberConfig currentConfig = Main.DamageNumbersReborn.config.enemyHealthBarNumbers;
 
-            if ((currentNumber?.healthBar == null)
+            if (((currentNumber?.healthBar == null)
                 || (currentNumber?.Enemy.Dead ?? true))
+                && currentNumber.animationState != EnemyHealthBarNumberObject.AnimationState.FadingOut)
             {
                 // If the enemy or health bar doesn't exist, or the enemy dies, remove it
-                //currentNumber?.gameObj?.SetActive(false);
+                // If the number is already fading out, don't remove it again
                 RemoveHealthBarNumber(currentNumber);
                 continue;
             }
 
             // calculate current screen position of the damage number
-            Vector2 worldPosition = currentNumber.healthBar.transform.position + (Vector3)_labelWorldPositionOffset;
+            Vector2 worldPosition = currentNumber.healthBar.transform.position + currentConfig.labelWorldPositionOffset;
             Vector2 screenPosition = WorldPointToHighResCameraScreenPoint(worldPosition);
 
-            // if the game is paused, deactivate the bar number
-            currentNumber?.gameObj?.SetActive(currentNumber.ShouldShowNumber);
-            if (!currentNumber.ShouldShowNumber)
-                continue;
+            // if the game is paused or TPO is dead, set current alpha to 0
+            float currentAlpha = currentNumber.ShouldShowNumber
+                ? currentConfig.animation.GetCurrentAlpha(currentNumber)
+                : 0f;
 
             // display damage number
-            // start the damage number if it isn't started yet
+            // start the unstarted damage number if the enemy health bar is enabled
+            // else, skip it until enemy health bar is enabled
             if (!currentNumber.started)
             {
+                if (!(currentNumber?.healthBar?.IsEnabled ?? false))
+                    continue;
+
                 // Instatiate the prefab if it doesn't exist
                 currentNumber.gameObj ??= GameObject.Instantiate(Prefab, UIModder.Parents.CanvasHighRes);
                 currentNumber.gameObj.SetActive(true);
 
                 // finish starting
                 currentNumber.started = true;
+                currentNumber.FadeIn();
             }
-
 
             // Set position
             int fontSize = Mathf.CeilToInt(currentConfig.fontSize * MasterConfig.GuiScale);
@@ -74,6 +90,11 @@ internal class EnemyHealthBarNumbersManager : NumbersManager
             Text text = currentNumber.gameObj.GetComponent<Text>();
             text.text = currentNumber.HealthText;
             text.fontSize = fontSize;
+            text.color = text.color.ChangeAlphaTo(currentAlpha);
+
+            // Set text outline
+            Outline outline = currentNumber.gameObj.GetComponent<Outline>();
+            outline.effectColor = outline.effectColor.ChangeAlphaTo(currentAlpha);
         }
     }
 
@@ -86,24 +107,36 @@ internal class EnemyHealthBarNumbersManager : NumbersManager
         numbers.Add(result);
     }
 
-    internal void RemoveHealthBarNumber(EnemyHealthBar bar)
+    internal void RemoveHealthBarNumber(EnemyHealthBar bar, bool force = false)
     {
         EnemyHealthBarNumberObject number = numbers.FirstOrDefault(x => x.healthBar == bar);
         if (number == null)
             return;
 
-        RemoveHealthBarNumber(number);
+        RemoveHealthBarNumber(number, force);
     }
 
-    internal void RemoveHealthBarNumber(EnemyHealthBarNumberObject number)
+    internal void RemoveHealthBarNumber(EnemyHealthBarNumberObject number, bool force = false)
     {
-        GameObject.Destroy(number?.gameObj);
-        numbers.Remove(number);
+        if (force)
+        {
+            number.KillSelf();
+            return;
+        }
+
+        if (number.animationState == EnemyHealthBarNumberObject.AnimationState.FadingOut)
+            return;
+        number.FadeOutAndKillSelf();
+    }
+
+    internal void RemoveAllHealthBarNumbers(bool force = false)
+    {
+        numbers.ForEach(x => RemoveHealthBarNumber(x, force));
     }
 
     private protected override GameObject CreatePrefab()
     {
-        DamageNumberConfig currentConfig = Main.DamageNumbersReborn.config.enemyHealthBarNumbers;
+        EnemyHealthBarNumberConfig currentConfig = Main.DamageNumbersReborn.config.enemyHealthBarNumbers;
 
         // Initialize transform and parent.
         GameObject result = new($"HealthBarNumbers");
@@ -119,12 +152,12 @@ internal class EnemyHealthBarNumbersManager : NumbersManager
         text.font = FontStorage.GetFont(currentConfig.fontName);
         text.fontSize = fontSize;
         text.alignment = TextAnchor.UpperRight;
-        text.color = MasterConfig.ParseHtmlToColorOrWhite("#d00b0d");
+        text.color = currentConfig.TextColor;
 
         // set outline
         Outline outline = result.AddComponent<Outline>();
         outline.effectColor = currentConfig.OutlineColor;
-        outline.effectDistance = new Vector2(1f, 1f) * MasterConfig.GuiScale;
+        outline.effectDistance = (Vector2)currentConfig.outlineDistance * MasterConfig.GuiScale;
 
         // set rectTransform
         RectTransform rectTransform = result.GetOrElseAddComponent<RectTransform>();

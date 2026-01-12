@@ -19,15 +19,18 @@ public class MasterConfig
     };
 
     // WIP, need a new simpler config class
-    public DamageNumberConfig enemyHealthBarNumbers = new()
+    public EnemyHealthBarNumberConfig enemyHealthBarNumbers = new()
     {
         outlineColor = "#ddc752",
+        textColor = "#d00b0d",
         fontSize = 12,
+        labelWorldPositionOffset = new(-1.5f, 0.15f),
+        outlineDistance = new(0.6f, 0.8f)
     };
 
-    public int precisionDigits = 3;
-
     public DamageElementColorConfig elementColors = new();
+
+    public int precisionDigits = 3;
 
     /// <summary>
     /// If true, enemy health bar will always be shown regardless of whether Eye of Erudition is equipped.

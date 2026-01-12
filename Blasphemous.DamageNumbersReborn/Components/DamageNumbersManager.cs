@@ -1,4 +1,5 @@
 ﻿using Blasphemous.DamageNumbersReborn.Configs;
+using Blasphemous.DamageNumbersReborn.Extensions;
 using Blasphemous.Framework.UI;
 using Gameplay.GameControllers.Entities;
 using Gameplay.GameControllers.Penitent;
@@ -12,50 +13,9 @@ namespace Blasphemous.DamageNumbersReborn.Components;
 internal class DamageNumbersManager : NumbersManager
 {
     internal List<DamageNumberObject> damageNumbers;
-
-    private Vector2 _labelWorldPositionOffset = new(0f, 1f);
-    private int _cyclicalMovementPeriod = 3;
-    private int _cyclicalCounter = 1;
-    private Vector2 _cyclicalXRange = new Vector2(-0.8f, 0.8f);
-
-
-    /// <summary>
-    /// Cyclical counter for cyclical positioning of new damage numbers. 
-    /// Counter starts at `0` and ends at `<see cref="_cyclicalMovementPeriod"/> - 1`.
-    /// </summary>
-    private int CyclicalCounter
-    {
-        get => _cyclicalCounter;
-        set
-        {
-            _cyclicalCounter = value;
-            while (_cyclicalCounter >= _cyclicalMovementPeriod)
-            {
-                _cyclicalCounter -= _cyclicalMovementPeriod;
-            }
-            while (_cyclicalCounter < 0)
-            {
-                _cyclicalCounter += _cyclicalMovementPeriod;
-            }
-        }
-    }
-
-    private Vector2 CyclicalXRange
-    {
-        get => _cyclicalXRange;
-        set
-        {
-            // Ensure the range is valid
-            if (value.x > value.y)
-            {
-                _cyclicalXRange = new Vector2(value.y, value.x);
-            }
-            else
-            {
-                _cyclicalXRange = value;
-            }
-        }
-    }
+    private CyclicalPositioningHandler penitentCyclicalXPosition;
+    private CyclicalPositioningHandler enemyCyclicalXPosition;
+    private int _poolSize = 50;
 
     public static DamageNumbersManager Instance { get; private set; }
 
@@ -63,7 +23,13 @@ internal class DamageNumbersManager : NumbersManager
     {
         base.Awake();
         Instance = this;
-        damageNumbers = new List<DamageNumberObject>(40);
+        damageNumbers = new(_poolSize);
+        penitentCyclicalXPosition = new(
+            Main.DamageNumbersReborn.config.penitentDamageNumbers.cyclicalMovementPeriod,
+            Main.DamageNumbersReborn.config.penitentDamageNumbers.cyclicalXRange);
+        enemyCyclicalXPosition = new(
+            Main.DamageNumbersReborn.config.enemyDamageNumbers.cyclicalMovementPeriod,
+            Main.DamageNumbersReborn.config.enemyDamageNumbers.cyclicalXRange);
     }
 
     public void AddDamageNumber(Hit hit, Entity entity)
@@ -95,17 +61,20 @@ internal class DamageNumbersManager : NumbersManager
 
         // set starting position
         Vector3 entityPosition = entity.GetComponentInChildren<DamageArea>().TopCenter;
-        // apply random x offset
-        float randomXOffset = UnityEngine.Random.Range(-0.2f, 0.2f);
+        // apply random offset
+        Vector2 randomOffset = new(
+            Random.Range(currentConfig.randomXRange.X, currentConfig.randomXRange.Y),
+            Random.Range(currentConfig.randomYRange.X, currentConfig.randomYRange.Y));
         // apply cyclical x offset
-        float cyclicalRatio = (float)CyclicalCounter / ((float)_cyclicalMovementPeriod - 1f);
-        float cyclicalXOffset = Mathf.Lerp(CyclicalXRange.x, CyclicalXRange.y, cyclicalRatio);
-        CyclicalCounter++;
+        float cyclicalXOffset = entityType == DamageNumberObject.EntityType.Penitent
+            ? penitentCyclicalXPosition.GetNextCyclicalOffset()
+            : enemyCyclicalXPosition.GetNextCyclicalOffset();
         // finalize starting and final position
-        Vector2 startingPosition = new Vector2(entityPosition.x + randomXOffset + cyclicalXOffset, entityPosition.y) + _labelWorldPositionOffset;
-        Vector2 finalPosition = startingPosition + new Vector2(
-            currentConfig.animation.totalXMovement,
-            currentConfig.animation.totalYMovement);
+        Vector2 startingPosition = (Vector2)entityPosition
+            + randomOffset
+            + new Vector2(cyclicalXOffset, 0)
+            + currentConfig.labelWorldPositionOffset;
+        Vector2 finalPosition = startingPosition + currentConfig.animation.totalMovement;
 
         // calculate post-mitigation damage
         float postMitigationDamage = Mathf.Max(entity.GetReducedDamage(hit) - entity.Stats.Defense.Final, 0f);
@@ -135,7 +104,7 @@ internal class DamageNumbersManager : NumbersManager
             DamageNumberConfig currentConfig = Main.DamageNumbersReborn.config.EntityTypeToConfig[currentDamageNumber.damagedEntityType];
 
             if (currentDamageNumber == null
-                || currentDamageNumber?.timePassed >= currentConfig.animation.totalDurationSeconds)
+                || currentDamageNumber?.timePassedSeconds >= currentConfig.animation.totalDurationSeconds)
             {
                 // If the damage number has exceeded its duration, kill it
                 GameObject.Destroy(currentDamageNumber?.gameObj);
@@ -145,12 +114,12 @@ internal class DamageNumbersManager : NumbersManager
 
             // calculate current screen position of the damage number
             // calculate world position movement progress
-            currentConfig.animation.CalculateCurrentPosition(ref currentDamageNumber.currentPosition, currentDamageNumber.timePassed, currentDamageNumber.startingPosition, currentDamageNumber.finalPosition);
+            currentConfig.animation.CalculateCurrentPosition(ref currentDamageNumber.currentPosition, currentDamageNumber.timePassedSeconds, currentDamageNumber.startingPosition, currentDamageNumber.finalPosition);
             // convert world position to screen position
             Vector2 screenPosition = WorldPointToHighResCameraScreenPoint(currentDamageNumber.currentPosition);
 
             // calculate current alpha
-            float currentAlpha = currentConfig.animation.GetCurrentAlpha(currentDamageNumber.timePassed);
+            float currentAlpha = currentConfig.animation.GetCurrentAlpha(currentDamageNumber.timePassedSeconds);
             // if the game is paused, alpha is set to 0.
             if (UIController.instance.Paused)
             {
@@ -183,6 +152,7 @@ internal class DamageNumbersManager : NumbersManager
                 // start text outline
                 Outline t_outline = currentDamageNumber.gameObj.GetComponent<Outline>();
                 t_outline.effectColor = currentConfig.OutlineColor;
+                t_outline.effectDistance = (Vector2)currentConfig.outlineDistance * MasterConfig.GuiScale;
 
                 // finish starting
                 currentDamageNumber.started = true;
@@ -195,18 +165,14 @@ internal class DamageNumbersManager : NumbersManager
             // Set text
             Text text = currentDamageNumber.gameObj.GetComponent<Text>();
             text.text = Main.DamageNumbersReborn.config.NumberStringFormatted(currentDamageNumber.postMitigationDamage);
-            Color textColor = text.color;
-            textColor.a = currentAlpha;
-            text.color = textColor;
+            text.color = text.color.ChangeAlphaTo(currentAlpha);
 
             // Set text outline
             Outline outline = currentDamageNumber.gameObj.GetComponent<Outline>();
-            Color outlineColor = outline.effectColor;
-            outlineColor.a = currentAlpha;
-            outline.effectColor = outlineColor;
+            outline.effectColor = outline.effectColor.ChangeAlphaTo(currentAlpha);
 
             // Increment time
-            currentDamageNumber.timePassed += Time.deltaTime;
+            currentDamageNumber.timePassedSeconds += Time.deltaTime;
         }
     }
 
@@ -229,7 +195,6 @@ internal class DamageNumbersManager : NumbersManager
         text.alignment = TextAnchor.MiddleCenter;
 
         Outline outline = result.AddComponent<Outline>();
-        outline.effectDistance = new Vector2(1f, 1f) * MasterConfig.GuiScale;
 
         // Initialize rectTransform
         RectTransform rectTransform = result.GetComponent<RectTransform>();

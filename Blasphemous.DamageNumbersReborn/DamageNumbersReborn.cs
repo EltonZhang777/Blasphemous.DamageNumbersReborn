@@ -11,6 +11,7 @@ internal class DamageNumbersReborn : BlasMod
 {
     internal MasterConfig config;
     internal event Action OnFirstEnterMainMenu;
+    internal event Action OnUpdateEvent;
 
     public DamageNumbersReborn() : base(ModInfo.MOD_ID, ModInfo.MOD_NAME, ModInfo.MOD_AUTHOR, ModInfo.MOD_VERSION) { }
 
@@ -45,5 +46,10 @@ internal class DamageNumbersReborn : BlasMod
             OnFirstEnterMainMenu?.Invoke();
             OnFirstEnterMainMenu = null;
         }
+    }
+
+    protected override void OnUpdate()
+    {
+        OnUpdateEvent?.Invoke();
     }
 }

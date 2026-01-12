@@ -1,4 +1,5 @@
-﻿using UnityEngine;
+﻿using Blasphemous.DamageNumbersReborn.Components;
+using UnityEngine;
 
 namespace Blasphemous.DamageNumbersReborn.Configs;
 
@@ -25,14 +26,9 @@ public class DamageNumberAnimationConfig
     public float movingDurationSeconds = 0.4f;
 
     /// <summary>
-    /// Total displacement (signed) in the X axis during the moving effect.
+    /// Total displacement (signed) during the moving effect.
     /// </summary>
-    public float totalXMovement = 0f;
-
-    /// <summary>
-    /// Total displacement (signed) in the Y axis during the moving effect.
-    /// </summary>
-    public float totalYMovement = 0.7f;
+    public SerializableVector3 totalMovement = new(0f, 0.7f);
 
     internal float FadeOutStartTimeSeconds => totalDurationSeconds - fadeOutDurationSeconds;
 

@@ -8,7 +8,7 @@ internal class DamageNumberObject
     public Vector2 startingPosition;
     public Vector2 finalPosition;
     public bool started = false;
-    public float timePassed;
+    public float timePassedSeconds;
     public Hit hit;
     public float postMitigationDamage;
     public Entity damagedEntity;

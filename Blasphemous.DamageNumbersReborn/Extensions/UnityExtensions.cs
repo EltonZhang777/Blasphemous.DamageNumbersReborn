@@ -9,4 +9,9 @@ internal static class UnityExtensions
         result ??= obj.AddComponent<T>();
         return result;
     }
+
+    public static Color ChangeAlphaTo(this Color color, float alpha)
+    {
+        return new Color(color.r, color.g, color.b, Mathf.Clamp01(alpha));
+    }
 }
