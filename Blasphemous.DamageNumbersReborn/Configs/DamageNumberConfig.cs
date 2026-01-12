@@ -13,7 +13,5 @@ public class DamageNumberConfig
     public string outlineColor = "#FFFFFF";
     public DamageNumberAnimationConfig animation = new();
 
-    internal Color OutlineColor => ColorUtility.TryParseHtmlString(outlineColor, out Color color)
-        ? color
-        : new Color(1, 1, 1, 1);
+    internal Color OutlineColor => MasterConfig.ParseHtmlToColorOrWhite(outlineColor);
 }

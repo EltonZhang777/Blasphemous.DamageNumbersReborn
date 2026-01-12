@@ -1,4 +1,5 @@
-﻿using Blasphemous.DamageNumbersReborn.Configs;
+﻿using Blasphemous.DamageNumbersReborn.Components;
+using Blasphemous.DamageNumbersReborn.Configs;
 using Blasphemous.ModdingAPI;
 
 namespace Blasphemous.DamageNumbersReborn;
@@ -17,5 +18,8 @@ internal class DamageNumbersReborn : BlasMod
         config.enemyDamageNumbers.animation.Validate();
 
         ConfigHandler.Save(config);
+
+        // Initialize font storage
+        FontStorage.LoadAllFontsFromConfig();
     }
 }

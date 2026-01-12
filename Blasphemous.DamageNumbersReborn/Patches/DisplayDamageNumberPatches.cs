@@ -25,7 +25,7 @@ class EnemyDamageArea_TakeDamageAmount_SpawnDamageNumber_Patch
     {
         if (Main.DamageNumbersReborn.config.enemyDamageNumbers.enabled)
         {
-            DamageNumbersManager.instance?.AddDamageNumber(hit, __instance.OwnerEntity);
+            DamageNumbersManager.Instance?.AddDamageNumber(hit, __instance.OwnerEntity);
         }
     }
 }
@@ -38,7 +38,7 @@ class PenitentDamageArea_RaiseDamageEvent_SpawnDamageNumber_Patch
     {
         if (Main.DamageNumbersReborn.config.penitentDamageNumbers.enabled)
         {
-            DamageNumbersManager.instance?.AddDamageNumber(hit, __instance.OwnerEntity);
+            DamageNumbersManager.Instance?.AddDamageNumber(hit, __instance.OwnerEntity);
         }
     }
 }

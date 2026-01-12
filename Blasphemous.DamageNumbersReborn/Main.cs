@@ -1,6 +1,7 @@
 ﻿global using I2LocManager = I2.Loc.LocalizationManager;
 
 using BepInEx;
+using Blasphemous.ModdingAPI;
 
 namespace Blasphemous.DamageNumbersReborn;
 
@@ -13,5 +14,12 @@ public class Main : BaseUnityPlugin
     private void Start()
     {
         DamageNumbersReborn = new DamageNumbersReborn();
+    }
+
+    internal static void LogIfDebug(string message)
+    {
+#if DEBUG
+        ModLog.Warn($"[DEBUG] {message}");
+#endif
     }
 }
