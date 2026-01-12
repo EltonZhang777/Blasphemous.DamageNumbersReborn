@@ -1,7 +1,7 @@
 ﻿using Blasphemous.DamageNumbersReborn.Configs;
 using Blasphemous.DamageNumbersReborn.Extensions;
+using Blasphemous.Framework.UI;
 using Gameplay.GameControllers.Entities;
-using Gameplay.UI;
 using System.Collections.Generic;
 using System.Linq;
 using UnityEngine;
@@ -43,7 +43,7 @@ internal class EnemyHealthBarNumbersManager : NumbersManager
 
             // calculate current screen position of the damage number
             Vector2 worldPosition = currentNumber.healthBar.transform.position + (Vector3)_labelWorldPositionOffset;
-            Vector2 screenPosition = Camera.WorldToScreenPoint(worldPosition);
+            Vector2 screenPosition = WorldPointToHighResCameraScreenPoint(worldPosition);
 
             // if the game is paused, deactivate the bar number
             currentNumber?.gameObj?.SetActive(currentNumber.ShouldShowNumber);
@@ -55,7 +55,7 @@ internal class EnemyHealthBarNumbersManager : NumbersManager
             if (!currentNumber.started)
             {
                 // Instatiate the prefab if it doesn't exist
-                currentNumber.gameObj ??= GameObject.Instantiate(Prefab, UIController.instance.transform);
+                currentNumber.gameObj ??= GameObject.Instantiate(Prefab, UIModder.Parents.CanvasHighRes);
                 currentNumber.gameObj.SetActive(true);
 
                 // finish starting
@@ -64,7 +64,7 @@ internal class EnemyHealthBarNumbersManager : NumbersManager
 
 
             // Set position
-            int fontSize = (int)(currentConfig.fontSize * (MasterConfig.GuiScale / 3f));
+            int fontSize = Mathf.CeilToInt(currentConfig.fontSize * MasterConfig.GuiScale);
             Vector2 rectSize = new(fontSize * 10f, fontSize * 2f);
             RectTransform rectTransform = currentNumber.gameObj.GetComponent<RectTransform>();
             rectTransform.anchoredPosition = screenPosition;
@@ -107,14 +107,14 @@ internal class EnemyHealthBarNumbersManager : NumbersManager
 
         // Initialize transform and parent.
         GameObject result = new($"HealthBarNumbers");
-        result.transform.SetParent(UIController.instance.transform);
+        result.transform.SetParent(UIModder.Parents.CanvasHighRes);
         result.transform.localPosition = Vector3.zero;
         result.layer = LayerMask.NameToLayer("UI");
         result.transform.SetSiblingIndex(0);
 
         // set text and font
         Text text = result.AddComponent<Text>();
-        int fontSize = (int)(currentConfig.fontSize * (MasterConfig.GuiScale / 3f));
+        int fontSize = Mathf.CeilToInt(currentConfig.fontSize * MasterConfig.GuiScale);
         Vector2 rectSize = new Vector2(fontSize * 10f, fontSize * 2f);
         text.font = FontStorage.GetFont(currentConfig.fontName);
         text.fontSize = fontSize;
@@ -124,7 +124,7 @@ internal class EnemyHealthBarNumbersManager : NumbersManager
         // set outline
         Outline outline = result.AddComponent<Outline>();
         outline.effectColor = currentConfig.OutlineColor;
-        outline.effectDistance = new Vector2(1f, 1f);
+        outline.effectDistance = new Vector2(1f, 1f) * MasterConfig.GuiScale;
 
         // set rectTransform
         RectTransform rectTransform = result.GetOrElseAddComponent<RectTransform>();

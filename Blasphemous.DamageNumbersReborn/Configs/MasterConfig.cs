@@ -22,6 +22,7 @@ public class MasterConfig
     public DamageNumberConfig enemyHealthBarNumbers = new()
     {
         outlineColor = "#ddc752",
+        fontSize = 12,
     };
 
     public int precisionDigits = 3;
@@ -34,8 +35,8 @@ public class MasterConfig
     public bool alwaysShowEnemyHealthBar = false;
 
     internal static bool ShowingEnemyHealthBar => Core.Events.GetFlag("SHOW_ENEMY_BAR");
-    internal static float ScreenWidthScale => Screen.width / 640f;
-    internal static float ScreenHeightScale => Screen.height / 360f;
+    internal static float ScreenWidthScale => Screen.width / NumbersManager.Camera.pixelWidth;
+    internal static float ScreenHeightScale => Screen.height / NumbersManager.Camera.pixelHeight;
     internal static float GuiScale => (ScreenHeightScale > ScreenWidthScale) ? ScreenWidthScale : ScreenHeightScale;
 
     internal Dictionary<DamageArea.DamageElement, Color> DamageElementToColor => new()

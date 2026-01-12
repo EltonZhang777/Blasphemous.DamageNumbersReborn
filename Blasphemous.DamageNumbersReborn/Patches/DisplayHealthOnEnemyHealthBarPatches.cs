@@ -2,7 +2,6 @@
 using Blasphemous.DamageNumbersReborn.Extensions;
 using Framework.Managers;
 using Gameplay.GameControllers.Entities;
-using Gameplay.UI;
 using HarmonyLib;
 
 namespace Blasphemous.DamageNumbersReborn.Patches;
@@ -22,11 +21,10 @@ class DisplayHealthOnEnemyHealthBarPatches
 
     [HarmonyPatch("UpdateParent")]
     [HarmonyPostfix]
-    public static void DisplayHealthNumber(
-        EnemyHealthBar __instance,
-        Enemy ___Owner)
+    public static void AddHealthNumberToDisplay(
+        EnemyHealthBar __instance)
     {
-        if (!__instance.GetOwner().UseHealthBar)
+        if (!__instance.GetOwner()?.UseHealthBar ?? true)
             return;
 
         EnemyHealthBarNumbersManager.Instance.AddHealthBarNumber(__instance);
@@ -38,15 +36,5 @@ class DisplayHealthOnEnemyHealthBarPatches
         EnemyHealthBar __instance)
     {
         EnemyHealthBarNumbersManager.Instance.RemoveHealthBarNumber(__instance);
-    }
-}
-
-[HarmonyPatch(typeof(UIController), "Awake")]
-class UIController_Awake_AttachHealthBarNumbersManager_Patch
-{
-    [HarmonyPostfix]
-    public static void Postfix()
-    {
-        UIController.instance.gameObject?.AddComponent<EnemyHealthBarNumbersManager>();
     }
 }

@@ -1,4 +1,5 @@
-﻿using Framework.Managers;
+﻿using Blasphemous.DamageNumbersReborn.Configs;
+using Framework.Managers;
 using UnityEngine;
 
 namespace Blasphemous.DamageNumbersReborn.Components;
@@ -14,7 +15,7 @@ internal class NumbersManager : MonoBehaviour
             return _prefab;
         }
     }
-    private protected Camera Camera => Core.Screen.GameCamera;
+    protected internal static Camera Camera => Core.Screen.GameCamera;
 
     private protected virtual void Awake()
     {
@@ -26,5 +27,10 @@ internal class NumbersManager : MonoBehaviour
     private protected virtual GameObject CreatePrefab()
     {
         return null;
+    }
+
+    private protected static Vector2 WorldPointToHighResCameraScreenPoint(Vector2 pos)
+    {
+        return Camera.WorldToScreenPoint(pos) * MasterConfig.GuiScale;
     }
 }

@@ -1,4 +1,5 @@
 ﻿using Blasphemous.DamageNumbersReborn.Configs;
+using Blasphemous.Framework.UI;
 using Gameplay.GameControllers.Entities;
 using Gameplay.GameControllers.Penitent;
 using Gameplay.UI;
@@ -146,7 +147,7 @@ internal class DamageNumbersManager : NumbersManager
             // calculate world position movement progress
             currentConfig.animation.CalculateCurrentPosition(ref currentDamageNumber.currentPosition, currentDamageNumber.timePassed, currentDamageNumber.startingPosition, currentDamageNumber.finalPosition);
             // convert world position to screen position
-            Vector2 screenPosition = Camera.WorldToScreenPoint(currentDamageNumber.currentPosition);
+            Vector2 screenPosition = WorldPointToHighResCameraScreenPoint(currentDamageNumber.currentPosition);
 
             // calculate current alpha
             float currentAlpha = currentConfig.animation.GetCurrentAlpha(currentDamageNumber.timePassed);
@@ -157,14 +158,14 @@ internal class DamageNumbersManager : NumbersManager
             }
 
             // calculate font and rect size based on current GUI scale
-            int fontSize = (int)(currentConfig.fontSize * (MasterConfig.GuiScale / 3f));
+            int fontSize = Mathf.CeilToInt(currentConfig.fontSize * MasterConfig.GuiScale);
             Vector2 rectSize = new Vector2(fontSize * 10f, fontSize * 2f);
 
             // display damage number
             // Start the damage number if it isn't started yet
             if (!currentDamageNumber.started)
             {
-                currentDamageNumber.gameObj ??= GameObject.Instantiate(Prefab, UIController.instance.transform);
+                currentDamageNumber.gameObj ??= GameObject.Instantiate(Prefab, UIModder.Parents.CanvasHighRes);
                 currentDamageNumber.gameObj.SetActive(true);
 
                 // start rectTransform
@@ -216,7 +217,7 @@ internal class DamageNumbersManager : NumbersManager
     {
         // Initialize transform and parent.
         GameObject result = new($"DamageNumbers");
-        result.transform.SetParent(UIController.instance.transform);
+        result.transform.SetParent(UIModder.Parents.CanvasHighRes);
         result.transform.localPosition = Vector3.zero;
         result.layer = LayerMask.NameToLayer("UI");
         result.transform.SetSiblingIndex(0);
@@ -228,7 +229,7 @@ internal class DamageNumbersManager : NumbersManager
         text.alignment = TextAnchor.MiddleCenter;
 
         Outline outline = result.AddComponent<Outline>();
-        outline.effectDistance = new Vector2(1f, 1f);
+        outline.effectDistance = new Vector2(1f, 1f) * MasterConfig.GuiScale;
 
         // Initialize rectTransform
         RectTransform rectTransform = result.GetComponent<RectTransform>();
