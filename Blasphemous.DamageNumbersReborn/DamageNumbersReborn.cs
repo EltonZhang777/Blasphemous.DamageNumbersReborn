@@ -23,7 +23,6 @@ internal class DamageNumbersReborn : BlasMod
         config.enemyDamageNumbers.animation.Validate();
 
         ConfigHandler.Save(config);
-
     }
 
     protected override void OnAllInitialized()

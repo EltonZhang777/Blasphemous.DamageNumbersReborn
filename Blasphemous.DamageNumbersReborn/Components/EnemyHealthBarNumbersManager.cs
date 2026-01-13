@@ -12,7 +12,6 @@ using UnityEngine.UI;
 namespace Blasphemous.DamageNumbersReborn.Components;
 internal class EnemyHealthBarNumbersManager : NumbersManager
 {
-    private int _poolSize = 50;
     internal List<EnemyHealthBarNumberObject> numbers;
 
     public static EnemyHealthBarNumbersManager Instance { get; private set; }

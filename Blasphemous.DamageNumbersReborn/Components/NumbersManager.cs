@@ -6,6 +6,7 @@ namespace Blasphemous.DamageNumbersReborn.Components;
 
 internal class NumbersManager : MonoBehaviour
 {
+    private protected int _poolSize = 50;
     private protected GameObject _prefab;
     private protected GameObject Prefab
     {
@@ -19,6 +20,7 @@ internal class NumbersManager : MonoBehaviour
 
     private protected virtual void Awake()
     {
+        UIObjectPoolManager.HighRes.CreatePool(Prefab, _poolSize);
     }
 
     /// <summary>
@@ -29,7 +31,7 @@ internal class NumbersManager : MonoBehaviour
         return null;
     }
 
-    private protected static Vector2 WorldPointToHighResCameraScreenPoint(Vector2 pos)
+    protected internal static Vector2 WorldPointToHighResCameraScreenPoint(Vector2 pos)
     {
         return Camera.WorldToScreenPoint(pos) * MasterConfig.GuiScale;
     }
