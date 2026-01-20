@@ -3,11 +3,12 @@ using Blasphemous.DamageNumbersReborn.Extensions;
 using Framework.Managers;
 using Gameplay.GameControllers.Entities;
 using HarmonyLib;
+using System.Linq;
 
 namespace Blasphemous.DamageNumbersReborn.Patches;
 
 [HarmonyPatch(typeof(EnemyHealthBar))]
-class DisplayHealthOnEnemyHealthBarPatches
+class DisplayEnemyHealthBarNumbersPatches
 {
     [HarmonyPatch("OnDamaged")]
     [HarmonyPrefix]
@@ -17,6 +18,18 @@ class DisplayHealthOnEnemyHealthBarPatches
         {
             Core.Events.SetFlag("SHOW_ENEMY_BAR", true);
         }
+    }
+
+    [HarmonyPatch("OnDamaged")]
+    [HarmonyPostfix]
+    public static void EnableBarNumber(
+        EnemyHealthBar __instance)
+    {
+        EnemyHealthBarNumberObject number = EnemyHealthBarNumbersManager.Instance.numbers.FirstOrDefault(x => x.healthBar == __instance);
+        if (number == null)
+            return;
+
+        number.IsBarEnabled = __instance.IsEnabled;
     }
 
     [HarmonyPatch("UpdateParent")]

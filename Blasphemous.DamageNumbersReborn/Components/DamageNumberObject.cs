@@ -13,7 +13,6 @@ internal class DamageNumberObject : MonoBehaviour
 {
     public Vector2 startingPosition;
     public Vector2 finalPosition;
-    public bool started = false;
     public float timePassedSeconds;
     public Hit hit;
     public float postMitigationDamage;
@@ -73,7 +72,7 @@ internal class DamageNumberObject : MonoBehaviour
         gameObject.SetActive(false);
     }
 
-    private void Start()
+    private void OnEnable()
     {
         // start config
         config = Main.DamageNumbersReborn.config.EntityTypeToConfig[damagedEntityType];
@@ -95,7 +94,6 @@ internal class DamageNumberObject : MonoBehaviour
         outline.effectDistance = (Vector2)config.outlineDistance * MasterConfig.GuiScale;
 
         // finish starting
-        started = true;
     }
 
     private void Update()
