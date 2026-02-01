@@ -18,7 +18,6 @@ public class MasterConfig
         outlineColor = "#900000"
     };
 
-    // WIP, need a new simpler config class
     public EnemyHealthBarNumberConfig enemyHealthBarNumbers = new()
     {
         outlineColor = "#ddc752",
@@ -26,6 +25,36 @@ public class MasterConfig
         fontSize = 12,
         labelWorldPositionOffset = new(-1.5f, 0.15f),
         outlineDistance = new(0.6f, 0.8f)
+    };
+
+    public BossHealthBarNumberConfig bossHealthBarRemainingHealthNumber = new()
+    {
+        outlineColor = "#ddc752",
+        textColor = "#d00b0d",
+        fontSize = 14,
+        labelWorldPositionOffset = new(-1.5f, 0.15f),
+        outlineDistance = new(0.6f, 0.8f),
+        poolSize = 5,
+    };
+
+    public BossHealthBarNumberConfig bossHealthBarPercentageNumber = new()
+    {
+        outlineColor = "#ddc752",
+        textColor = "#d00b0d",
+        fontSize = 14,
+        labelWorldPositionOffset = new(-1.5f, 0.15f),
+        outlineDistance = new(0.6f, 0.8f),
+        poolSize = 5,
+    };
+
+    public BossHealthBarNumberConfig bossHealthBarRecentlyLostHealthNumber = new()
+    {
+        outlineColor = "#ddc752",
+        textColor = "#d00b0d",
+        fontSize = 14,
+        labelWorldPositionOffset = new(-1.5f, 0.15f),
+        outlineDistance = new(0.6f, 0.8f),
+        poolSize = 5,
     };
 
     public DamageElementColorConfig elementColors = new();

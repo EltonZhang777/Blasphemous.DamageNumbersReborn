@@ -6,7 +6,6 @@ namespace Blasphemous.DamageNumbersReborn.Components;
 
 internal class NumbersManager : MonoBehaviour
 {
-    private protected int _poolSize = 50;
     private protected GameObject _prefab;
     private protected GameObject Prefab
     {
@@ -20,7 +19,6 @@ internal class NumbersManager : MonoBehaviour
 
     private protected virtual void Awake()
     {
-        UIObjectPoolManager.HighRes.CreatePool(Prefab, _poolSize);
     }
 
     /// <summary>

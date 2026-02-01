@@ -19,7 +19,9 @@ internal class DamageNumbersManager : NumbersManager
     {
         base.Awake();
         Instance = this;
-        damageNumbers = new(_poolSize);
+        int listSize = Main.DamageNumbersReborn.config.penitentDamageNumbers.poolSize
+            + Main.DamageNumbersReborn.config.enemyDamageNumbers.poolSize;
+        damageNumbers = new(listSize);
         penitentCyclicalXPosition = new(
             Main.DamageNumbersReborn.config.penitentDamageNumbers.cyclicalMovementPeriod,
             Main.DamageNumbersReborn.config.penitentDamageNumbers.cyclicalXRange);
@@ -80,7 +82,7 @@ internal class DamageNumbersManager : NumbersManager
             startingPosition,
             Quaternion.identity,
             true,
-            _poolSize).GameObject.GetComponent<DamageNumberObject>();
+            currentConfig.poolSize).GameObject.GetComponent<DamageNumberObject>();
         result.hit = hit;
         result.postMitigationDamage = postMitigationDamage;
         result.startingPosition = startingPosition;

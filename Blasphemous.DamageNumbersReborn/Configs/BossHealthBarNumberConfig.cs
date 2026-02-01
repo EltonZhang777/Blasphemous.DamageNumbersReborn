@@ -2,7 +2,7 @@
 using UnityEngine;
 
 namespace Blasphemous.DamageNumbersReborn.Configs;
-public class EnemyHealthBarNumberConfig : NumberConfig
+public class BossHealthBarNumberConfig : NumberConfig
 {
     public string textColor = "#000000";
 
@@ -15,8 +15,6 @@ public class EnemyHealthBarNumberConfig : NumberConfig
     /// X and Y distance of text outline to the main text.
     /// </summary>
     public SerializableVector3 outlineDistance = new(0.6f, 0.8f);
-
-    public EnemyHealthBarNumberAnimationConfig animation = new();
 
     internal Color TextColor => MasterConfig.ParseHtmlToColorOrWhite(textColor);
 }

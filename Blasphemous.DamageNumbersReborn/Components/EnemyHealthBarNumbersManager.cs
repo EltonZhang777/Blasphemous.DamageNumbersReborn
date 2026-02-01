@@ -9,6 +9,8 @@ namespace Blasphemous.DamageNumbersReborn.Components;
 internal class EnemyHealthBarNumbersManager : NumbersManager
 {
     internal List<EnemyHealthBarNumberObject> numbers;
+    
+    private protected EnemyHealthBarNumberConfig Config => Main.DamageNumbersReborn.config.enemyHealthBarNumbers;
 
     public static EnemyHealthBarNumbersManager Instance { get; private set; }
 
@@ -16,7 +18,7 @@ internal class EnemyHealthBarNumbersManager : NumbersManager
     {
         base.Awake();
         Instance = this;
-        numbers = new(_poolSize);
+        numbers = new(Config.poolSize);
     }
 
     internal void AddHealthBarNumber(EnemyHealthBar bar)
@@ -31,7 +33,7 @@ internal class EnemyHealthBarNumbersManager : NumbersManager
             Vector3.zero,
             Quaternion.identity,
             true,
-            _poolSize).GameObject.GetComponent<EnemyHealthBarNumberObject>();
+            Config.poolSize).GameObject.GetComponent<EnemyHealthBarNumberObject>();
 
         result.healthBar = bar;
         numbers.Add(result);
@@ -70,8 +72,6 @@ internal class EnemyHealthBarNumbersManager : NumbersManager
 
     private protected override GameObject CreatePrefab()
     {
-        EnemyHealthBarNumberConfig currentConfig = Main.DamageNumbersReborn.config.enemyHealthBarNumbers;
-
         // Initialize transform and parent.
         GameObject result = new($"HealthBarNumbers");
         result.transform.SetParent(UIModder.Parents.CanvasHighRes);
