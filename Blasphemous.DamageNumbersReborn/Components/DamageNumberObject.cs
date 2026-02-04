@@ -72,7 +72,7 @@ internal class DamageNumberObject : MonoBehaviour
         gameObject.SetActive(false);
     }
 
-    private void OnEnable()
+    internal void OnEnable()
     {
         // start config
         config = Main.DamageNumbersReborn.config.EntityTypeToConfig[damagedEntityType];
@@ -85,6 +85,7 @@ internal class DamageNumberObject : MonoBehaviour
         rectTransform.sizeDelta = rectSize;
 
         // start text
+        text.text = Main.DamageNumbersReborn.config.NumberStringFormatted(postMitigationDamage);
         text.font = FontStorage.GetFont(config.fontName);
         text.fontSize = fontSize;
         text.color = Main.DamageNumbersReborn.config.DamageElementToColor[hit.DamageElement];
@@ -94,6 +95,7 @@ internal class DamageNumberObject : MonoBehaviour
         outline.effectDistance = (Vector2)config.outlineDistance * MasterConfig.GuiScale;
 
         // finish starting
+        timePassedSeconds = 0f;
     }
 
     private void Update()
@@ -115,7 +117,6 @@ internal class DamageNumberObject : MonoBehaviour
         rectTransform.anchoredPosition = screenPosition;
 
         // Set text
-        text.text = Main.DamageNumbersReborn.config.NumberStringFormatted(postMitigationDamage);
         text.color = text.color.ChangeAlphaTo(Alpha);
 
         // Set text outline

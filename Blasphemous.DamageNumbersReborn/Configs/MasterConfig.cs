@@ -31,8 +31,8 @@ public class MasterConfig
     {
         outlineColor = "#ddc752",
         textColor = "#d00b0d",
-        fontSize = 14,
-        labelWorldPositionOffset = new(-1.5f, 0.15f),
+        fontSize = 13,
+        labelWorldPositionOffset = new(17.2f, 5f),
         outlineDistance = new(0.6f, 0.8f),
         poolSize = 5,
     };
@@ -41,18 +41,18 @@ public class MasterConfig
     {
         outlineColor = "#ddc752",
         textColor = "#d00b0d",
-        fontSize = 14,
-        labelWorldPositionOffset = new(-1.5f, 0.15f),
+        fontSize = 13,
+        labelWorldPositionOffset = new(18.6f, 5.0f),
         outlineDistance = new(0.6f, 0.8f),
         poolSize = 5,
     };
 
     public BossHealthBarNumberConfig bossHealthBarRecentlyLostHealthNumber = new()
     {
-        outlineColor = "#ddc752",
-        textColor = "#d00b0d",
-        fontSize = 14,
-        labelWorldPositionOffset = new(-1.5f, 0.15f),
+        outlineColor = "#000000",
+        textColor = "#ffffff",
+        fontSize = 13,
+        labelWorldPositionOffset = new(18.6f, 5.7f),
         outlineDistance = new(0.6f, 0.8f),
         poolSize = 5,
     };
@@ -87,6 +87,12 @@ public class MasterConfig
         { DamageNumberObject.EntityType.Enemy, enemyDamageNumbers },
         { DamageNumberObject.EntityType.Boss, enemyDamageNumbers },
         { DamageNumberObject.EntityType.Other, enemyDamageNumbers }
+    };
+    internal Dictionary<BossHealthBarNumberObject.TextType, BossHealthBarNumberConfig> TextTypeToConfig => new()
+    {
+        { BossHealthBarNumberObject.TextType.Percentage, bossHealthBarPercentageNumber },
+        { BossHealthBarNumberObject.TextType.Details, bossHealthBarRemainingHealthNumber },
+        { BossHealthBarNumberObject.TextType.RecentlyLost, bossHealthBarRecentlyLostHealthNumber },
     };
 
     internal static string NumberStringFormatted(float number, int precision)

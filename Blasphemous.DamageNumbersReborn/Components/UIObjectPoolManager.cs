@@ -36,6 +36,7 @@ internal class UIObjectPoolManager : MonoBehaviour
             poolDictionary.Add(instanceID, new Queue<ObjectInstance>());
             GameObject pool = new(prefab.name + " pool");
             pool.transform.SetParent(transform);
+            pool.SetActive(true);
             for (int i = 0; i < poolSize; i++)
             {
                 ObjectInstance objectInstance = new(UnityEngine.Object.Instantiate<GameObject>(prefab));
@@ -50,6 +51,7 @@ internal class UIObjectPoolManager : MonoBehaviour
             {
                 return;
             }
+            pool.SetActive(true);
             for (int j = 0; j < poolSize; j++)
             {
                 ObjectInstance objectInstance2 = new(UnityEngine.Object.Instantiate<GameObject>(prefab));
@@ -72,7 +74,7 @@ internal class UIObjectPoolManager : MonoBehaviour
         else if (createPoolIfNeeded)
         {
             CreatePool(prefab, poolSize);
-            objectInstance = ReuseObject(prefab, position, rotation, false, 1);
+            objectInstance = ReuseObject(prefab, position, rotation, createPoolIfNeeded, poolSize);
         }
         return objectInstance;
     }

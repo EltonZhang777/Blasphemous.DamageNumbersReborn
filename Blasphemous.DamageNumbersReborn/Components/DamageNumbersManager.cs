@@ -77,12 +77,14 @@ internal class DamageNumbersManager : NumbersManager
         // calculate post-mitigation damage
         float postMitigationDamage = Mathf.Max(entity.GetReducedDamage(hit) - entity.Stats.Defense.Final, 0f);
 
-        DamageNumberObject result = UIObjectPoolManager.HighRes.ReuseObject(
+        // reuse damage number GameObject from pool
+        GameObject obj = UIObjectPoolManager.HighRes.ReuseObject(
             Prefab,
             startingPosition,
             Quaternion.identity,
             true,
-            currentConfig.poolSize).GameObject.GetComponent<DamageNumberObject>();
+            currentConfig.poolSize).GameObject;
+        DamageNumberObject result = obj.GetComponent<DamageNumberObject>();
         result.hit = hit;
         result.postMitigationDamage = postMitigationDamage;
         result.startingPosition = startingPosition;
@@ -90,8 +92,10 @@ internal class DamageNumbersManager : NumbersManager
         result.damagedEntity = entity;
         result.damagedEntityType = entityType;
         result.currentPosition = result.startingPosition;
+        result.timePassedSeconds = 0f;
         damageNumbers.Add(result);
-        result.gameObject.SetActive(true);
+        obj.SetActive(true);
+        result.OnEnable();
     }
 
     public void RemoveDamageNumber(DamageNumberObject damageNumber)

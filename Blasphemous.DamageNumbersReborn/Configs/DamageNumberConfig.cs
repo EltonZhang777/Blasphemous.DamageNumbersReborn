@@ -1,5 +1,4 @@
 ﻿using Blasphemous.DamageNumbersReborn.Components;
-using UnityEngine;
 
 namespace Blasphemous.DamageNumbersReborn.Configs;
 

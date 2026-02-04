@@ -35,6 +35,7 @@ internal class DamageNumbersReborn : BlasMod
         {
             UIModder.Parents.CanvasHighRes.gameObject.AddComponent<DamageNumbersManager>();
             UIModder.Parents.CanvasHighRes.gameObject.AddComponent<EnemyHealthBarNumbersManager>();
+            UIModder.Parents.CanvasHighRes.gameObject.AddComponent<BossHealthBarNumbersManager>();
         };
     }
 

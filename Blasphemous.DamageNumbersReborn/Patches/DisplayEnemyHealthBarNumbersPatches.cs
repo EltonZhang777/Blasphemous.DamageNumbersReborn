@@ -8,7 +8,7 @@ using System.Linq;
 namespace Blasphemous.DamageNumbersReborn.Patches;
 
 [HarmonyPatch(typeof(EnemyHealthBar))]
-class DisplayEnemyHealthBarNumbersPatches
+class EnemyHealthBar_DisplayEnemyHealthBarNumbers_Patches
 {
     [HarmonyPatch("OnDamaged")]
     [HarmonyPrefix]

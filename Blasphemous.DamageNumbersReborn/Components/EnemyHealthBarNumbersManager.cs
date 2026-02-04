@@ -9,7 +9,7 @@ namespace Blasphemous.DamageNumbersReborn.Components;
 internal class EnemyHealthBarNumbersManager : NumbersManager
 {
     internal List<EnemyHealthBarNumberObject> numbers;
-    
+
     private protected EnemyHealthBarNumberConfig Config => Main.DamageNumbersReborn.config.enemyHealthBarNumbers;
 
     public static EnemyHealthBarNumbersManager Instance { get; private set; }
