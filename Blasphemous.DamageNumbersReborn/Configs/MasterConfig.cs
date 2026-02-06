@@ -8,6 +8,21 @@ namespace Blasphemous.DamageNumbersReborn.Configs;
 
 public class MasterConfig
 {
+    /// <summary>
+    /// Decimal digits of damage numbers
+    /// </summary>
+    public int damageNumberPrecisionDigits = 3;
+
+    /// <summary>
+    /// If true, enemy health bar will always be shown regardless of whether Eye of Erudition is equipped.
+    /// </summary>
+    public bool alwaysShowEnemyHealthBar = false;
+
+    /// <summary>
+    /// If true, only one flask sprite will be shown by the penitent UI
+    /// </summary>
+    public bool briefFlasksDisplay = false;
+
     public DamageNumberConfig enemyDamageNumbers = new()
     {
         outlineColor = "#000000"
@@ -97,14 +112,25 @@ public class MasterConfig
         poolSize = 2,
     };
 
+    public UIBarNumberConfig penitentFlaskDetailsVanillaNumber = new()
+    {
+        outlineColor = "#ddc752",
+        textColor = "#ffffff",
+        fontSize = 13,
+        labelWorldPositionOffset = new(19.0f, 5.5f),
+        outlineDistance = new(0.6f, 0.8f),
+    };
+
+    public UIBarNumberConfig penitentFlaskDetailsBriefNumber = new()
+    {
+        outlineColor = "#ddc752",
+        textColor = "#ffffff",
+        fontSize = 13,
+        labelWorldPositionOffset = new(19f, 6f),
+        outlineDistance = new(0.6f, 0.8f),
+    };
+
     public DamageElementColorConfig elementColors = new();
-
-    public int precisionDigits = 3;
-
-    /// <summary>
-    /// If true, enemy health bar will always be shown regardless of whether Eye of Erudition is equipped.
-    /// </summary>
-    public bool alwaysShowEnemyHealthBar = false;
 
     internal static bool ShowingEnemyHealthBar => Core.Events.GetFlag("SHOW_ENEMY_BAR");
     internal static float ScreenWidthScale => Screen.width / NumbersManager.Camera.pixelWidth;
@@ -139,6 +165,8 @@ public class MasterConfig
         { PenitentBarNumberObject.TextType.HealthDetails, penitentHealthBarDetailedNumber },
         { PenitentBarNumberObject.TextType.FervourPercentage, penitentFervourBarPercentageNumber },
         { PenitentBarNumberObject.TextType.FervourDetails, penitentFervourBarDetailedNumber },
+        { PenitentBarNumberObject.TextType.FlaskDetailsVanilla, penitentFlaskDetailsVanillaNumber },
+        { PenitentBarNumberObject.TextType.FlaskDetailsBrief, penitentFlaskDetailsBriefNumber },
     };
 
     internal static string NumberStringFormatted(float number, int precision)
@@ -156,7 +184,7 @@ public class MasterConfig
 
     internal string NumberStringFormatted(float number)
     {
-        return NumberStringFormatted(number, precisionDigits);
+        return NumberStringFormatted(number, damageNumberPrecisionDigits);
     }
 
     internal static Color ParseHtmlToColorOrWhite(string htmlColor)

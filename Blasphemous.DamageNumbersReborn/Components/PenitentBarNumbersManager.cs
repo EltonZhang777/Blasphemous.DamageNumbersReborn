@@ -32,6 +32,12 @@ internal class PenitentBarNumbersManager : NumbersManager
             if (!Main.DamageNumbersReborn.config.PenitentBarTextTypeToConfig[textType].enabled)
                 continue;
 
+            // choose flask display type
+            if ((Main.DamageNumbersReborn.config.briefFlasksDisplay == true) && (textType == PenitentBarNumberObject.TextType.FlaskDetailsVanilla))
+                continue;
+            if ((Main.DamageNumbersReborn.config.briefFlasksDisplay == false) && (textType == PenitentBarNumberObject.TextType.FlaskDetailsBrief))
+                continue;
+
             // check for duplicates
             if (numbers.FirstOrDefault(x => x.textType == textType) != null)
                 continue;

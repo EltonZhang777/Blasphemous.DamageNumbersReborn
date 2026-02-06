@@ -32,6 +32,8 @@ internal class PenitentBarNumberObject : MonoBehaviour
     public float MaxHealth => Penitent.Stats.Life.Final;
     public float CurrentFervour => Penitent.Stats.Fervour.Current;
     public float MaxFervour => Penitent.Stats.Fervour.Final;
+    public float CurrentFlasks => Penitent.Stats.Flask.Current;
+    public float MaxFlasks => Penitent.Stats.Flask.Final;
     public string DisplayText
     {
         get
@@ -46,6 +48,10 @@ internal class PenitentBarNumberObject : MonoBehaviour
                     return $"{Main.DamageNumbersReborn.config.NumberStringFormatted(CurrentFervour)} / {Main.DamageNumbersReborn.config.NumberStringFormatted(MaxFervour)}";
                 case (TextType.FervourPercentage):
                     return $"({(CurrentFervour / MaxFervour).ToString($"P1")})";
+                case (TextType.FlaskDetailsVanilla):
+                    return $"{Main.DamageNumbersReborn.config.NumberStringFormatted(CurrentFlasks)} / {Main.DamageNumbersReborn.config.NumberStringFormatted(MaxFlasks)}  (+{Core.Logic.Penitent.Stats.FlaskHealth.Final})";
+                case (TextType.FlaskDetailsBrief):
+                    return $"X  {Main.DamageNumbersReborn.config.NumberStringFormatted(CurrentFlasks)} / {Main.DamageNumbersReborn.config.NumberStringFormatted(MaxFlasks)}  (+{Core.Logic.Penitent.Stats.FlaskHealth.Final})";
                 default:
                     return "#ERROR";
             }
@@ -71,7 +77,9 @@ internal class PenitentBarNumberObject : MonoBehaviour
         HealthDetails,
         HealthPercentage,
         FervourDetails,
-        FervourPercentage
+        FervourPercentage,
+        FlaskDetailsVanilla,
+        FlaskDetailsBrief
     }
 
     private void Awake()
