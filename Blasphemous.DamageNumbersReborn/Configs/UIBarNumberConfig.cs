@@ -2,7 +2,7 @@
 using UnityEngine;
 
 namespace Blasphemous.DamageNumbersReborn.Configs;
-public class BossHealthBarNumberConfig : NumberConfig
+public class UIBarNumberConfig : NumberConfig
 {
     public string textColor = "#000000";
 

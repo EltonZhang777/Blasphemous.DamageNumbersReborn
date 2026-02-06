@@ -27,7 +27,7 @@ public class MasterConfig
         outlineDistance = new(0.6f, 0.8f)
     };
 
-    public BossHealthBarNumberConfig bossHealthBarRemainingHealthNumber = new()
+    public UIBarNumberConfig bossHealthBarDetailedNumber = new()
     {
         outlineColor = "#ddc752",
         textColor = "#d00b0d",
@@ -37,7 +37,7 @@ public class MasterConfig
         poolSize = 5,
     };
 
-    public BossHealthBarNumberConfig bossHealthBarPercentageNumber = new()
+    public UIBarNumberConfig bossHealthBarPercentageNumber = new()
     {
         outlineColor = "#ddc752",
         textColor = "#d00b0d",
@@ -47,7 +47,7 @@ public class MasterConfig
         poolSize = 5,
     };
 
-    public BossHealthBarNumberConfig bossHealthBarRecentlyLostHealthNumber = new()
+    public UIBarNumberConfig bossHealthBarRecentlyLostNumber = new()
     {
         outlineColor = "#000000",
         textColor = "#ffffff",
@@ -55,6 +55,46 @@ public class MasterConfig
         labelWorldPositionOffset = new(18.6f, 5.7f),
         outlineDistance = new(0.6f, 0.8f),
         poolSize = 5,
+    };
+
+    public UIBarNumberConfig penitentHealthBarDetailedNumber = new()
+    {
+        outlineColor = "#ddc752",
+        textColor = "#d00b0d",
+        fontSize = 13,
+        labelWorldPositionOffset = new(17.7f, 7.41f),
+        outlineDistance = new(0.6f, 0.8f),
+        poolSize = 2,
+    };
+
+    public UIBarNumberConfig penitentHealthBarPercentageNumber = new()
+    {
+        outlineColor = "#ddc752",
+        textColor = "#d00b0d",
+        fontSize = 13,
+        labelWorldPositionOffset = new(19f, 7.41f),
+        outlineDistance = new(0.6f, 0.8f),
+        poolSize = 2,
+    };
+
+    public UIBarNumberConfig penitentFervourBarDetailedNumber = new()
+    {
+        outlineColor = "#ddc752",
+        textColor = "#0960c1",
+        fontSize = 13,
+        labelWorldPositionOffset = new(17.7f, 6.42f),
+        outlineDistance = new(0.6f, 0.8f),
+        poolSize = 2,
+    };
+
+    public UIBarNumberConfig penitentFervourBarPercentageNumber = new()
+    {
+        outlineColor = "#ddc752",
+        textColor = "#0960c1",
+        fontSize = 13,
+        labelWorldPositionOffset = new(19f, 6.42f),
+        outlineDistance = new(0.6f, 0.8f),
+        poolSize = 2,
     };
 
     public DamageElementColorConfig elementColors = new();
@@ -80,7 +120,6 @@ public class MasterConfig
         { DamageArea.DamageElement.Lightning, ParseHtmlToColorOrWhite(elementColors.lightningColor) },
         { DamageArea.DamageElement.Toxic, ParseHtmlToColorOrWhite(elementColors.toxicColor) },
     };
-
     internal Dictionary<DamageNumberObject.EntityType, DamageNumberConfig> EntityTypeToConfig => new()
     {
         { DamageNumberObject.EntityType.Penitent, penitentDamageNumbers },
@@ -88,11 +127,18 @@ public class MasterConfig
         { DamageNumberObject.EntityType.Boss, enemyDamageNumbers },
         { DamageNumberObject.EntityType.Other, enemyDamageNumbers }
     };
-    internal Dictionary<BossHealthBarNumberObject.TextType, BossHealthBarNumberConfig> TextTypeToConfig => new()
+    internal Dictionary<BossHealthBarNumberObject.TextType, UIBarNumberConfig> BossBarTextTypeToConfig => new()
     {
         { BossHealthBarNumberObject.TextType.Percentage, bossHealthBarPercentageNumber },
-        { BossHealthBarNumberObject.TextType.Details, bossHealthBarRemainingHealthNumber },
-        { BossHealthBarNumberObject.TextType.RecentlyLost, bossHealthBarRecentlyLostHealthNumber },
+        { BossHealthBarNumberObject.TextType.Details, bossHealthBarDetailedNumber },
+        { BossHealthBarNumberObject.TextType.RecentlyLost, bossHealthBarRecentlyLostNumber },
+    };
+    internal Dictionary<PenitentBarNumberObject.TextType, UIBarNumberConfig> PenitentBarTextTypeToConfig => new()
+    {
+        { PenitentBarNumberObject.TextType.HealthPercentage, penitentHealthBarPercentageNumber },
+        { PenitentBarNumberObject.TextType.HealthDetails, penitentHealthBarDetailedNumber },
+        { PenitentBarNumberObject.TextType.FervourPercentage, penitentFervourBarPercentageNumber },
+        { PenitentBarNumberObject.TextType.FervourDetails, penitentFervourBarDetailedNumber },
     };
 
     internal static string NumberStringFormatted(float number, int precision)

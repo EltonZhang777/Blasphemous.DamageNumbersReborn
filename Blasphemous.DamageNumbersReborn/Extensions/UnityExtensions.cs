@@ -21,8 +21,6 @@ internal static class UnityExtensions
     /// <summary>
     /// Recursively trace a GameObject's parent until reaching the root object, output the hierarchy as a string
     /// </summary>
-    /// <param name="gameObject"></param>
-    /// <returns></returns>
     public static string GetHierarchy(this GameObject gameObject)
     {
         string hierarchy = gameObject.name;

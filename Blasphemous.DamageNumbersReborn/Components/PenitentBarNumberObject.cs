@@ -1,22 +1,19 @@
 ﻿using Blasphemous.DamageNumbersReborn.Configs;
 using Blasphemous.DamageNumbersReborn.Extensions;
 using Blasphemous.Framework.UI;
-using Blasphemous.ModdingAPI.Helpers;
-using Gameplay.GameControllers.Entities;
+using Framework.Managers;
+using Gameplay.GameControllers.Penitent;
 using Gameplay.UI;
 using Gameplay.UI.Others.UIGameLogic;
-using System.Linq;
+using HarmonyLib;
 using UnityEngine;
 using UnityEngine.UI;
 
 namespace Blasphemous.DamageNumbersReborn.Components;
 
 [RequireComponent(typeof(RectTransform), typeof(Text), typeof(Outline))]
-internal class BossHealthBarNumberObject : MonoBehaviour
+internal class PenitentBarNumberObject : MonoBehaviour
 {
-    public string bossId;
-    public BossHealth bossHealthBar;
-
     internal TextType textType;
     internal UIBarNumberConfig config;
     internal RectTransform rectTransform;
@@ -24,43 +21,46 @@ internal class BossHealthBarNumberObject : MonoBehaviour
     internal Outline outline;
     internal float timeSinceLastHitSeconds;
 
-    private int fontSize;
-    private Vector2 rectSize;
-    private static readonly float _recentlyLostHealthDisplayDurationSeconds = 2f;
+    private int _fontSize;
+    private Vector2 _rectSize;
+    private Transform _penitentFervourBar;
+    private CanvasGroup _penitentUICanvas;
+    private GameObject _loadWidget;
 
-    public Entity Entity => bossHealthBar.GetTarget();
-    public float CurrentHealth => Entity.Stats.Life.Current;
-    public float MaxHealth => Entity.Stats.Life.Final;
-    public float RecentlyLostHealth { get; internal set; }
-    public string HealthText
+    public Penitent Penitent => Core.Logic.Penitent;
+    public float CurrentHealth => Penitent.Stats.Life.Current;
+    public float MaxHealth => Penitent.Stats.Life.Final;
+    public float CurrentFervour => Penitent.Stats.Fervour.Current;
+    public float MaxFervour => Penitent.Stats.Fervour.Final;
+    public string DisplayText
     {
         get
         {
-            if (CurrentHealth == 0f)
-                return "";
             switch (textType)
             {
-                case (TextType.Percentage):
-                    return $"({(CurrentHealth / MaxHealth).ToString($"P1")})";
-                case (TextType.Details):
+                case (TextType.HealthDetails):
                     return $"{Main.DamageNumbersReborn.config.NumberStringFormatted(CurrentHealth)} / {Main.DamageNumbersReborn.config.NumberStringFormatted(MaxHealth)}";
-                case (TextType.RecentlyLost):
-                    if (Mathf.Approximately(RecentlyLostHealth, 0f))
-                        return "";
-                    return $"{Main.DamageNumbersReborn.config.NumberStringFormatted(RecentlyLostHealth)}";
+                case (TextType.HealthPercentage):
+                    return $"({(CurrentHealth / MaxHealth).ToString($"P1")})";
+                case (TextType.FervourDetails):
+                    return $"{Main.DamageNumbersReborn.config.NumberStringFormatted(CurrentFervour)} / {Main.DamageNumbersReborn.config.NumberStringFormatted(MaxFervour)}";
+                case (TextType.FervourPercentage):
+                    return $"({(CurrentFervour / MaxFervour).ToString($"P1")})";
                 default:
                     return "#ERROR";
             }
         }
     }
-    public bool ShouldShowNumber => !UIController.instance.Paused;
+    public bool ShouldShowNumber => !UIController.instance.Paused && !_loadWidget.activeInHierarchy;
     private float Alpha
     {
         get
         {
-            // if the game is paused, set current alpha to 0
-            float result = ShouldShowNumber
-                ? 1f
+            float result;
+            result = _penitentUICanvas.alpha;
+            // if the game is paused or is loading, set current alpha to 0
+            result = ShouldShowNumber
+                ? result
                 : 0f;
             return result;
         }
@@ -68,9 +68,10 @@ internal class BossHealthBarNumberObject : MonoBehaviour
 
     public enum TextType
     {
-        Percentage,
-        Details,
-        RecentlyLost
+        HealthDetails,
+        HealthPercentage,
+        FervourDetails,
+        FervourPercentage
     }
 
     private void Awake()
@@ -96,22 +97,24 @@ internal class BossHealthBarNumberObject : MonoBehaviour
 
     private void OnEnable()
     {
-        // reference to the boss health bar of desired boss
-        bossHealthBar = GameObject.FindObjectsOfType<BossHealth>().FirstOrDefault(x => x.GetTarget().Id.Equals(bossId));
-        if (bossHealthBar == null)
+        // reference to penitent health bar
+        _penitentUICanvas = Traverse.Create(UIController.instance).Field("gameplayWidget").Field("canvas").GetValue<CanvasGroup>();
+        _loadWidget = Traverse.Create(UIController.instance).Field("loadWidget").GetValue<GameObject>();
+        _penitentFervourBar = GameObject.FindObjectOfType<PlayerFervour>()?.transform;
+        if (_penitentFervourBar == null)
         {
-            BossHealthBarNumbersManager.Instance.RemoveHealthBarNumber(this);
+            PenitentBarNumbersManager.Instance.RemoveHealthBarNumber(this);
             return;
         }
 
         // start config
-        config = Main.DamageNumbersReborn.config.BossBarTextTypeToConfig[textType];
+        config = Main.DamageNumbersReborn.config.PenitentBarTextTypeToConfig[textType];
 
         // start text and font
-        fontSize = Mathf.CeilToInt(config.fontSize * MasterConfig.GuiScale);
-        rectSize = new Vector2(fontSize * 10f, fontSize * 2f);
+        _fontSize = Mathf.CeilToInt(config.fontSize * MasterConfig.GuiScale);
+        _rectSize = new Vector2(_fontSize * 10f, _fontSize * 2f);
         text.font = FontStorage.GetFont(config.fontName);
-        text.fontSize = fontSize;
+        text.fontSize = _fontSize;
         text.alignment = TextAnchor.UpperRight;
         text.color = config.TextColor;
 
@@ -122,32 +125,16 @@ internal class BossHealthBarNumberObject : MonoBehaviour
 
     private void Update()
     {
-        // remove health bar if game scene not loaded
-        if (!SceneHelper.GameSceneLoaded)
-        {
-            BossHealthBarNumbersManager.Instance.RemoveHealthBarNumber(this);
-            return;
-        }
-
-        if (textType == TextType.RecentlyLost)
-        {
-            timeSinceLastHitSeconds += Time.deltaTime;
-            if (!Mathf.Approximately(RecentlyLostHealth, 0f) && (timeSinceLastHitSeconds > _recentlyLostHealthDisplayDurationSeconds))
-            {
-                RecentlyLostHealth = 0f;
-            }
-        }
-
         // calculate current screen position of the damage number
-        Vector2 worldPosition = NumbersManager.Camera.ScreenToWorldPoint(bossHealthBar.transform.position) + config.labelWorldPositionOffset;
+        Vector2 worldPosition = NumbersManager.Camera.ScreenToWorldPoint(_penitentFervourBar.transform.position) + config.labelWorldPositionOffset;
         Vector2 screenPosition = NumbersManager.WorldPointToHighResCameraScreenPoint(worldPosition);
 
         // Set position
         rectTransform.anchoredPosition = screenPosition;
-        rectTransform.sizeDelta = rectSize;
+        rectTransform.sizeDelta = _rectSize;
 
         // Set text
-        text.text = HealthText;
+        text.text = DisplayText;
         text.color = text.color.ChangeAlphaTo(Alpha);
 
         // Set text outline

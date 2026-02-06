@@ -1,4 +1,5 @@
 ﻿using Blasphemous.Framework.UI;
+using System;
 using System.Collections.Generic;
 using System.Linq;
 using UnityEngine;
@@ -16,7 +17,7 @@ internal class BossHealthBarNumbersManager : NumbersManager
     {
         base.Awake();
         Instance = this;
-        _poolSize = Main.DamageNumbersReborn.config.TextTypeToConfig.Values.Select(x => x.poolSize).Max() * 3;
+        _poolSize = Main.DamageNumbersReborn.config.BossBarTextTypeToConfig.Values.Select(x => x.poolSize).Max() * 3;
         numbers = new(_poolSize);
     }
 
@@ -27,46 +28,21 @@ internal class BossHealthBarNumbersManager : NumbersManager
         if (existingNumber != null)
             return;
 
-        if (Main.DamageNumbersReborn.config.TextTypeToConfig[BossHealthBarNumberObject.TextType.Percentage].enabled)
+        foreach (BossHealthBarNumberObject.TextType textType in Enum.GetValues(typeof(BossHealthBarNumberObject.TextType)))
         {
-            BossHealthBarNumberObject percentageNumber = UIObjectPoolManager.HighRes.ReuseObject(
-                Prefab,
-                Vector3.zero,
-                Quaternion.identity,
-                true,
-                _poolSize).GameObject.GetComponent<BossHealthBarNumberObject>();
-            percentageNumber.bossId = entityId;
-            percentageNumber.textType = BossHealthBarNumberObject.TextType.Percentage;
-            numbers.Add(percentageNumber);
-            percentageNumber.gameObject.SetActive(true);
-        }
+            if (!Main.DamageNumbersReborn.config.BossBarTextTypeToConfig[textType].enabled)
+                continue;
 
-        if (Main.DamageNumbersReborn.config.TextTypeToConfig[BossHealthBarNumberObject.TextType.Details].enabled)
-        {
-            BossHealthBarNumberObject detailsNumber = UIObjectPoolManager.HighRes.ReuseObject(
+            BossHealthBarNumberObject numberObject = UIObjectPoolManager.HighRes.ReuseObject(
                 Prefab,
                 Vector3.zero,
                 Quaternion.identity,
                 true,
                 _poolSize).GameObject.GetComponent<BossHealthBarNumberObject>();
-            detailsNumber.bossId = entityId;
-            detailsNumber.textType = BossHealthBarNumberObject.TextType.Details;
-            numbers.Add(detailsNumber);
-            detailsNumber.gameObject.SetActive(true);
-        }
-
-        if (Main.DamageNumbersReborn.config.TextTypeToConfig[BossHealthBarNumberObject.TextType.RecentlyLost].enabled)
-        {
-            BossHealthBarNumberObject recentlyLostNumber = UIObjectPoolManager.HighRes.ReuseObject(
-                Prefab,
-                Vector3.zero,
-                Quaternion.identity,
-                true,
-                _poolSize).GameObject.GetComponent<BossHealthBarNumberObject>();
-            recentlyLostNumber.bossId = entityId;
-            recentlyLostNumber.textType = BossHealthBarNumberObject.TextType.RecentlyLost;
-            numbers.Add(recentlyLostNumber);
-            recentlyLostNumber.gameObject.SetActive(true);
+            numberObject.bossId = entityId;
+            numberObject.textType = textType;
+            numbers.Add(numberObject);
+            numberObject.gameObject.SetActive(true);
         }
     }
 
