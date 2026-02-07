@@ -1,7 +1,6 @@
 ﻿global using I2LocManager = I2.Loc.LocalizationManager;
 
 using BepInEx;
-using Blasphemous.ModdingAPI;
 
 namespace Blasphemous.DamageNumbersReborn;
 

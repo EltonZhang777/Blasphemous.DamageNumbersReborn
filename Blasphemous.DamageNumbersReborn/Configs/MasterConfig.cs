@@ -23,6 +23,26 @@ public class MasterConfig
     /// </summary>
     public bool briefFlasksDisplay = false;
 
+    /// <summary>
+    /// If true, penitent health bar length will be fixed regardless of max value
+    /// </summary>
+    public bool fixPenitentHealthBarLength = false;
+
+    /// <summary>
+    /// When health bar length is fixed, the fixed length's corresponding health value
+    /// </summary>
+    public float penitentHealthBarFixedLengthHealth = 190f;
+
+    /// <summary>
+    /// If true, penitent fervour bar length will be fixed regardless of max value
+    /// </summary>
+    public bool fixPenitentFervourBarLength = false;
+
+    /// <summary>
+    /// When fervour bar length is fixed, the fixed length's corresponding fervour value
+    /// </summary>
+    public float penitentFervourBarFixedLengthFervour = 160f;
+
     public DamageNumberConfig enemyDamageNumbers = new()
     {
         outlineColor = "#000000"
