@@ -6,6 +6,7 @@ namespace Blasphemous.DamageNumbersReborn;
 
 [BepInPlugin(ModInfo.MOD_ID, ModInfo.MOD_NAME, ModInfo.MOD_VERSION)]
 [BepInDependency("Blasphemous.ModdingAPI", "2.4.1")]
+[BepInDependency("Blasphemous.Framework.UI", "0.1.2")]
 public class Main : BaseUnityPlugin
 {
     internal static DamageNumbersReborn DamageNumbersReborn { get; private set; }
@@ -13,5 +14,12 @@ public class Main : BaseUnityPlugin
     private void Start()
     {
         DamageNumbersReborn = new DamageNumbersReborn();
+    }
+
+    internal static void LogIfDebug(string message)
+    {
+#if DEBUG
+        ModLog.Warn($"[DEBUG] {message}");
+#endif
     }
 }
