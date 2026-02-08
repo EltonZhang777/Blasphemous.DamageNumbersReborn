@@ -1,4 +1,5 @@
 ﻿using Blasphemous.DamageNumbersReborn.Components;
+using Blasphemous.DamageNumbersReborn.Extensions;
 using Framework.Inventory;
 using Framework.Managers;
 using Gameplay.GameControllers.Penitent;
@@ -234,7 +235,7 @@ class PlayerFervour_FixBarLength_Patches
         if (!Main.DamageNumbersReborn.config.fixPenitentFervourBarLength)
             return true;
 
-        __instance.StartCoroutine(ShowSparkCoroutine());
+        __instance.StartCoroutineSafe(ShowSparkCoroutine());
         return false;
 
         IEnumerator ShowSparkCoroutine()

@@ -143,12 +143,12 @@ internal class EnemyHealthBarNumberObject : MonoBehaviour
 
     internal void FadeIn()
     {
-        text.StartCoroutine(FadeInCoroutine());
+        text.StartCoroutineSafe(FadeInCoroutine());
     }
 
     internal void FadeOutAndKillSelf()
     {
-        text?.StartCoroutine(FadeOutAndKillSelfCoroutine());
+        text?.StartCoroutineSafe(FadeOutAndKillSelfCoroutine());
     }
 
     internal void KillSelf()

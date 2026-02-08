@@ -1,4 +1,5 @@
-﻿using UnityEngine;
+﻿using System.Collections;
+using UnityEngine;
 
 namespace Blasphemous.DamageNumbersReborn.Extensions;
 internal static class UnityExtensions
@@ -31,5 +32,19 @@ internal static class UnityExtensions
             hierarchy = currentTransform.name + "/" + hierarchy;
         }
         return hierarchy;
+    }
+
+    public static Coroutine StartCoroutineSafe(this MonoBehaviour mb, IEnumerator routine)
+    {
+        if (!mb.gameObject.activeInHierarchy)
+            return null;
+
+        return mb.StartCoroutine(routine);
+    }
+
+    public static bool TryStartCoroutine(this MonoBehaviour mb, IEnumerator routine, out Coroutine coroutine)
+    {
+        coroutine = mb.StartCoroutineSafe(routine);
+        return coroutine != null;
     }
 }
