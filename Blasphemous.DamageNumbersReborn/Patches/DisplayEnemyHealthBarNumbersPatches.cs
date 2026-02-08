@@ -37,7 +37,8 @@ class EnemyHealthBar_DisplayEnemyHealthBarNumbers_Patches
     public static void AddHealthNumberToDisplay(
         EnemyHealthBar __instance)
     {
-        if (!__instance.GetOwner()?.UseHealthBar ?? true)
+        if (!Main.DamageNumbersReborn.config.enemyHealthBarNumbers.enabled
+            || (!__instance.GetOwner()?.UseHealthBar ?? true))
             return;
 
         EnemyHealthBarNumbersManager.Instance.AddHealthBarNumber(__instance);
